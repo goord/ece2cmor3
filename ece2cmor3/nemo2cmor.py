@@ -1,16 +1,15 @@
-import cmor
+from __future__ import absolute_import
 import logging
-import netCDF4
-import numpy
 import os
 import re
+from datetime import timedelta
 
-import cmor_target
-import cmor_task
-import cmor_utils
+import cmor
+import netCDF4
+import numpy
 
-from datetime import datetime, timedelta
-from __load_nemo_vertices__ import load_vertices_from_file
+from ece2cmor3 import cmor_target, cmor_task, cmor_utils
+from .__load_nemo_vertices__ import load_vertices_from_file
 
 timeshift = timedelta(0)
 # Apply timeshift for instance in case you want manually to add a shift for the piControl:

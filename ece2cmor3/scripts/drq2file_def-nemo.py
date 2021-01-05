@@ -13,6 +13,7 @@
 #  genecec-per-mip-experiment.sh
 #
 
+from __future__ import print_function
 import xml.etree.ElementTree as xmltree
 import os.path                                                # for checking file or directory existence with: os.path.isfile or os.path.isdir
 import sys                                                    # for aborting: sys.exit
@@ -56,10 +57,10 @@ def main():
 
     args = parser.parse_args()
 
-    print ""
-    print "Running drq2ppt.py with:"
-    print "./drq2file_def-nemo.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args)
-    print ""
+    print("")
+    print("Running drq2ppt.py with:")
+    print("./drq2file_def-nemo.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args))
+    print("")
 
     if args.vars is not None and not os.path.isfile(args.vars):
         log.fatal("Your variable list json file %s cannot be found." % args.vars)
@@ -87,14 +88,14 @@ def main():
         sys.exit(' Exiting drq2file_def-nemo.')
 
     for task in ece2cmorlib.tasks:
-         print ' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
+         print(' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency))
         #print task.target.__dict__
 
-    print ' Number of activated data request tasks is', len(ece2cmorlib.tasks)
+    print(' Number of activated data request tasks is', len(ece2cmorlib.tasks))
         
 
     # READING THE BASIC FILE_DEF FILE:
-    if os.path.isfile(basic_file_def_file_name) == False: print ' The file ', basic_file_def_file_name, '  does not exist.'; sys.exit(' stop')
+    if os.path.isfile(basic_file_def_file_name) == False: print(' The file ', basic_file_def_file_name, '  does not exist.'); sys.exit(' stop')
 
     tree_basic_file_def             = xmltree.parse(basic_file_def_file_name)
     root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
@@ -121,7 +122,7 @@ def main():
        elif task.target.frequency == 'fx':
         layer_number_due_to_freq = 0
        else:
-        print '\n Unknown frequency in NEMO Volume estimate for: {:15} at table: {:9} with frequency: {}\n'.format(task.target.variable, task.target.table, task.target.frequency)
+        print('\n Unknown frequency in NEMO Volume estimate for: {:15} at table: {:9} with frequency: {}\n'.format(task.target.variable, task.target.table, task.target.frequency))
         layer_number_due_to_freq = 0
 
        # NEMO Volume estimate: estimate the number vertical layers per variable:
@@ -149,8 +150,8 @@ def main():
     # Write the NEMO XIOS file_def input files:
     tree_basic_file_def.write(file_def_file_name)
 
-    print '\n With a 2D layer equivalent of ', total_layer_equivalent, ' the NEMO Volume estimate for this CMIP6 data request is ', total_layer_equivalent * 0.43 / 1000.0, ' GB per year\n'
-    print ' The number of variables which is enabled in', file_def_file_name, ' is', count
+    print('\n With a 2D layer equivalent of ', total_layer_equivalent, ' the NEMO Volume estimate for this CMIP6 data request is ', total_layer_equivalent * 0.43 / 1000.0, ' GB per year\n')
+    print(' The number of variables which is enabled in', file_def_file_name, ' is', count)
 
 
     volume_estimate = open('volume-estimate-nemo.txt','w')

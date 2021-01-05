@@ -1,15 +1,8 @@
 import logging
-import threading
-import re
-import Queue
 import os
+import re
 
-from ece2cmor3 import cmor_task
-
-import grib_file
-import cdoapi
-import cmor_source
-import cmor_target
+from ece2cmor3 import cmor_task, grib_file, cdoapi, cmor_source, cmor_target
 
 # Log object
 log = logging.getLogger(__name__)

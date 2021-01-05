@@ -11,6 +11,7 @@
 # which is part of ece2cmor3.
 #
 
+from __future__ import print_function
 import json
 
 
@@ -36,9 +37,9 @@ for k, v in datastore["CV"]["experiment_id"].iteritems():
    #print ' {:30} {:30} {:30}'.format(k, v["activity_id"][0], v["parent_experiment_id"][0])
 
     if k != v["experiment_id"]:
-     print ' IDs differ: {:30} {:30} {:30}'.format(v["activity_id"][0], v["experiment_id"], k)
+     print(' IDs differ: {:30} {:30} {:30}'.format(v["activity_id"][0], v["experiment_id"], k))
     if len(v["activity_id"][:]) != 1:
-     print ' The activity_id has multiple entries: {:30} {:30}'.format(v["activity_id"], k)
+     print(' The activity_id has multiple entries: {:30} {:30}'.format(v["activity_id"], k))
 #   if len(v["parent_activity_id"][:]) != 1:
 #    print ' The parent_activity_id has multiple entries: {:30} {:30} {:30}'.format(v["activity_id"], k, v["parent_activity_id"][:])
 #   if len(v["parent_experiment_id"][:]) != 1:

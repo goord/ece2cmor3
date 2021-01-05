@@ -13,6 +13,7 @@
 # Note that this script is called by the script:
 #  genecec-per-mip-experiment.sh
 #
+from __future__ import print_function
 import os
 import sys
 
@@ -47,10 +48,10 @@ def main():
     
     args = parser.parse_args()
 
-    print ""
-    print "Running estimate-tm5-volume.py with:"
-    print "./estimate-tm5-volume.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args)
-    print ""
+    print("")
+    print("Running estimate-tm5-volume.py with:")
+    print("./estimate-tm5-volume.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args))
+    print("")
 
     if args.vars is not None and not os.path.isfile(args.vars):
         log.fatal("Your variable list json file %s cannot be found." % args.vars)
@@ -78,10 +79,10 @@ def main():
         sys.exit(' Exiting estimate-tm5-volume.')
 
     for task in ece2cmorlib.tasks:
-         print ' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
+         print(' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency))
         #print task.target.__dict__
 
-    print ' Number of activated data request tasks is', len(ece2cmorlib.tasks)
+    print(' Number of activated data request tasks is', len(ece2cmorlib.tasks))
         
 
     total_layer_equivalent = 0
@@ -91,7 +92,7 @@ def main():
     for task in ece2cmorlib.tasks:
       count = count + 1
       if not getattr(args,'short',False):
-        print ' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
+        print(' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency))
 
       if task.target.table not in task_per_freq.keys():
         task_per_freq[task.target.table] = 0
@@ -119,7 +120,7 @@ def main():
       #layer_number_due_to_freq = 365.25 * 12.  # At least hourly, thus sofar under limit (Actually there should't be (sub) houry variables available?).
        layer_number_due_to_freq = 0.            # Because there won't be any subhourly output from TM5.
       else:
-       print '\n Unknown frequency in TM5  Volume estimate for: {:15} at table: {:9} with frequency: {}\n'.format(task.target.variable, task.target.table, task.target.frequency)
+       print('\n Unknown frequency in TM5  Volume estimate for: {:15} at table: {:9} with frequency: {}\n'.format(task.target.variable, task.target.table, task.target.frequency))
        layer_number_due_to_freq = 0.
 
       if task.target.table == 'Emon':
@@ -154,13 +155,13 @@ def main():
         total_layer_equivalent = total_layer_equivalent + layers_per_var_per_yr
     #print(' {:3} varname: {:15} freq: {:5} table: {:7} zdim: {:30} vertical dim: {:3} {:2} {:8} layers per var per yr: {:8}'.format(count, task.target.variable, task.target.frequency, task.target.table, getattr(task.target, "z_dims", []), vertical_dim, len(zdim), layer_number_due_to_freq, layers_per_var_per_yr ))
 
-    print '\n With a 2D layer equivalent of ', total_layer_equivalent, ' the TM5 Volume estimate for this CMIP6 data request is ', total_layer_equivalent * 0.04 / 1000.0, ' GB per year\n'
-    print ' The number of variables which is available from TM5 in EC-Erth3 for this experiment is', count
+    print('\n With a 2D layer equivalent of ', total_layer_equivalent, ' the TM5 Volume estimate for this CMIP6 data request is ', total_layer_equivalent * 0.04 / 1000.0, ' GB per year\n')
+    print(' The number of variables which is available from TM5 in EC-Erth3 for this experiment is', count)
     for i in per_freq:
       #if i =='AERmonZ':
       #  print 'Table: {} \tsize: {} GB/yr'.format(i,per_freq[i]*0.04/1000/120)
       #else:
-      print 'Table: {} \t tasks {} \tsize: {} GB/yr'.format(i,task_per_freq[i], per_freq[i] * 0.04 / 1024.0)
+      print('Table: {} \t tasks {} \tsize: {} GB/yr'.format(i,task_per_freq[i], per_freq[i] * 0.04 / 1024.0))
     volume_estimate = open('volume-estimate-tm5.txt','w')
     volume_estimate.write(' \nEC-Earth3 TM5 Volume estimates of generated output:{}'.format('\n'))
     volume_estimate.write('  Volume estimate for the TM5 3x2 degrees grid: {} GB/yr{}'.format(total_layer_equivalent * 0.04 / 1000.0, '\n'))

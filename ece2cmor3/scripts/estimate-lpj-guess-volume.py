@@ -13,6 +13,7 @@
 #  genecec-per-mip-experiment.sh
 #
 
+from __future__ import print_function
 import xml.etree.ElementTree as xmltree
 import os.path                                                # for checking file or directory existence with: os.path.isfile or os.path.isdir
 import sys                                                    # for aborting: sys.exit
@@ -48,10 +49,10 @@ def main():
 
     args = parser.parse_args()
 
-    print ""
-    print "Running estimate-lpj-guess-volume.py with:"
-    print "./estimate-lpj-guess-volume.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args)
-    print ""
+    print("")
+    print("Running estimate-lpj-guess-volume.py with:")
+    print("./estimate-lpj-guess-volume.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args))
+    print("")
 
     if args.vars is not None and not os.path.isfile(args.vars):
         log.fatal("Your variable list json file %s cannot be found." % args.vars)
@@ -78,14 +79,14 @@ def main():
                   % (opt1, opt2))
         sys.exit(' Exiting estimate-lpj-guess-volume.')
 
-    print '\n Number of activated data request tasks is', len(ece2cmorlib.tasks), '\n'
+    print('\n Number of activated data request tasks is', len(ece2cmorlib.tasks), '\n')
         
 
     total_layer_equivalent= 0
     count = 0
     for task in ece2cmorlib.tasks:
       count = count + 1
-      print ' {:15} {:8} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
+      print(' {:15} {:8} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency))
 
       # LPJ-GUESS Volume estimate: estimate the number of 2D layers per variable in output due to the number of time steps per year:
       if task.target.frequency == 'yr':
@@ -104,7 +105,7 @@ def main():
       #layer_number_due_to_freq = 365.25 * 12.  # At least hourly, thus sofar under limit (Actually there should't be (sub) houry variables available?).
        layer_number_due_to_freq = 0             # Because there won't be any subhourly output from LPJ-GUESS.
       else:
-       print '\n Unknown frequency in LPJ-GUESS Volume estimate for: ', task.target.variable, '\n'
+       print('\n Unknown frequency in LPJ-GUESS Volume estimate for: ', task.target.variable, '\n')
        layer_number_due_to_freq = 0
 
       # LPJ-GUESS Volume estimate: estimate the number vertical layers per variable:
@@ -127,8 +128,8 @@ def main():
       total_layer_equivalent = total_layer_equivalent + layers_per_var_per_yr
      #print(' {:3} varname: {:15} freq: {:5} table: {:7} zdim: {:30} vertical dim: {:3} {:2} {:8} layers per var per yr: {:8}'.format(count, task.target.variable, task.target.frequency, task.target.table, getattr(task.target, "z_dims", []), vertical_dim, len(zdim), layer_number_due_to_freq, layers_per_var_per_yr ))
 
-    print '\n With a 2D layer equivalent of ', total_layer_equivalent, ' the LPJ-GUESS Volume estimate for this CMIP6 data request at T255 grid is ', total_layer_equivalent * 0.12 / 1000.0, ' GB per year\n'
-    print ' The number of variables which is available from LPJ-GUESS in EC-Erth3 for this experiment is', count
+    print('\n With a 2D layer equivalent of ', total_layer_equivalent, ' the LPJ-GUESS Volume estimate for this CMIP6 data request at T255 grid is ', total_layer_equivalent * 0.12 / 1000.0, ' GB per year\n')
+    print(' The number of variables which is available from LPJ-GUESS in EC-Erth3 for this experiment is', count)
 
     volume_estimate = open('volume-estimate-lpj-guess.txt','w')
     volume_estimate.write(' \nEC-Earth3 LPJ-GUESS Volume estimates of generated output:{}'.format('\n'))

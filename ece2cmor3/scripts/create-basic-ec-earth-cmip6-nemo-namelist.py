@@ -45,6 +45,7 @@
 # Ten, just read the basic file_def in order to check in case of modifications to the script whether
 # the basic file_def file is still a valid xml file.
 
+from __future__ import print_function
 import xml.etree.ElementTree as xmltree
 from ece2cmor3 import cmor_target
 import os.path                                                # for checking file or directory existence with: os.path.isfile or os.path.isdir
@@ -100,9 +101,9 @@ produce_nemopar_json = False
 # READING THE PING FILES:
 
 # Checking whether the ping files exist:
-if os.path.isfile(ping_file_name_ocean    ) == False: print ' The file ', ping_file_name_ocean    , '  does not exist.'; sys.exit(' stop')
-if os.path.isfile(ping_file_name_seaIce   ) == False: print ' The file ', ping_file_name_seaIce   , '  does not exist.'; sys.exit(' stop')
-if os.path.isfile(ping_file_name_ocnBgchem) == False: print ' The file ', ping_file_name_ocnBgchem, '  does not exist.'; sys.exit(' stop')
+if os.path.isfile(ping_file_name_ocean    ) == False: print(' The file ', ping_file_name_ocean    , '  does not exist.'); sys.exit(' stop')
+if os.path.isfile(ping_file_name_seaIce   ) == False: print(' The file ', ping_file_name_seaIce   , '  does not exist.'); sys.exit(' stop')
+if os.path.isfile(ping_file_name_ocnBgchem) == False: print(' The file ', ping_file_name_ocnBgchem, '  does not exist.'); sys.exit(' stop')
 
 treeOcean     = xmltree.parse(ping_file_name_ocean    )
 treeSeaIce    = xmltree.parse(ping_file_name_seaIce   )
@@ -172,9 +173,9 @@ total_pinglist_expr      = pinglistOcean_expr      + pinglistSeaIce_expr      + 
 #print  '\n Consistency check whether all total ping lists are equal long: ', len(total_pinglist_id), len(total_pinglist_field_ref), len(total_pinglist_text), len(total_pinglist_expr)
 
 if exclude_dummy_fields:
- print '\n There are ', len(total_pinglist_id), 'non-dummy variables taken from the shaconemo ping files.\n'
+ print('\n There are ', len(total_pinglist_id), 'non-dummy variables taken from the shaconemo ping files.\n')
 else:
- print '\n There are ', len(total_pinglist_id), 'variables taken from the shaconemo ping files.\n'
+ print('\n There are ', len(total_pinglist_id), 'variables taken from the shaconemo ping files.\n')
 
 # Consistency check between the ping file xml content field and the ping file "expr"-attribute. They are not the same,
 # in the "expr"-attribute the time average operator @ is aplied on each variable. So here spaces and the @ operator are
@@ -182,7 +183,7 @@ else:
 for i in range(len(total_pinglist_id)):
   if total_pinglist_expr[i] != 'None':
    if total_pinglist_expr[i].replace(" ", "").replace("@", "")  != total_pinglist_text[i].replace(" ", ""):
-    print ' Mismatch between ping content and ping expr for variable', total_pinglist_id[i], ':', total_pinglist_expr[i].replace(" ", "").replace("@", "") + ' and ' + total_pinglist_text[i].replace(" ", "") + '\n'
+    print(' Mismatch between ping content and ping expr for variable', total_pinglist_id[i], ':', total_pinglist_expr[i].replace(" ", "").replace("@", "") + ' and ' + total_pinglist_text[i].replace(" ", "") + '\n')
 
 # Give preference to the ping file "expr"-attribute in case the ping file "expr"-attribute has a value: that means overwrite the
 # xml content (the pinglist_text) by this ping file "expr"-attribute:
@@ -245,7 +246,7 @@ if give_preference_to_pingfile_expression_attribute:
 # READING THE FIELD_DEF FILES:
 
 def create_element_lists(file_name, attribute_1, attribute_2):
-    if os.path.isfile(file_name) == False: print ' The file ', file_name, '  does not exist.'; sys.exit(' stop')
+    if os.path.isfile(file_name) == False: print(' The file ', file_name, '  does not exist.'); sys.exit(' stop')
 
     tree = xmltree.parse(file_name)
     roottree = tree.getroot()
@@ -298,11 +299,11 @@ def create_element_lists(file_name, attribute_1, attribute_2):
             else:                                       freq_offset_elements.append(detected_freq_offset)
             
           else:
-           print ' ERROR: No field_ref and no grid_ref attribute for this variable ', roottree[group].attrib[attribute_1], ' which has no field_group element level. This element has the attributes: ', roottree[group].attrib
+           print(' ERROR: No field_ref and no grid_ref attribute for this variable ', roottree[group].attrib[attribute_1], ' which has no field_group element level. This element has the attributes: ', roottree[group].attrib)
 
         # If field_group element level exists:
         for child in elements:
-         if child.tag != "field": print ' At expected "field" element level, a deviating tag ',  child.tag, ' is detected.', child.attrib.keys()
+         if child.tag != "field": print(' At expected "field" element level, a deviating tag ',  child.tag, ' is detected.', child.attrib.keys())
          attribute_overview = attribute_overview + child.attrib.keys()  # Merge each step the next list of attribute keys with the overview list
 
          # If id attribute exits:
@@ -332,7 +333,7 @@ def create_element_lists(file_name, attribute_1, attribute_2):
              if "domain_ref" in roottree[group].attrib:
               field_elements_attribute_2.append('domain_ref="'+roottree[group].attrib["domain_ref"]+'"')
              else:
-              print ' ERROR: No ', 'domain_ref', ' attribute either for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', roottree[group].attrib
+              print(' ERROR: No ', 'domain_ref', ' attribute either for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', roottree[group].attrib)
               field_elements_attribute_2.append(None)
             else:
              field_elements_attribute_2.append(None)
@@ -348,15 +349,15 @@ def create_element_lists(file_name, attribute_1, attribute_2):
             fields_without_id_field_ref.append(child.attrib["field_ref"])
            #print ' This variable {:15} has no id and no name, but it has a field_ref = {:15} Its full attribute list: {}'.format('', child.attrib["field_ref"], child.attrib)
           else:
-           print ' ERROR: No ', attribute_1, 'and no field_ref attribute either for this variable. This element has the attributes: ', child.attrib
+           print(' ERROR: No ', attribute_1, 'and no field_ref attribute either for this variable. This element has the attributes: ', child.attrib)
 
    #for item in range(0,len(fields_without_id_name)):
    # print ' This variable {:15} has no id but it has a field_ref = {}'.format(fields_without_id_name[item], fields_without_id_field_ref[item])
    #print ' The length of the list with fields without an id is: ', len(fields_without_id_name)
     attribute_overview = list(set(attribute_overview))
    #print '  ', attribute_overview
-    if not len(field_elements_attribute_1) == len(field_elements_attribute_2 ): print ' ERROR: The id and grid_ref list are not of equal length\n'
-    if not len(fields_without_id_name    ) == len(fields_without_id_field_ref): print ' ERROR: The name and field_ref list are not of equal length\n'
+    if not len(field_elements_attribute_1) == len(field_elements_attribute_2 ): print(' ERROR: The id and grid_ref list are not of equal length\n')
+    if not len(fields_without_id_name    ) == len(fields_without_id_field_ref): print(' ERROR: The name and field_ref list are not of equal length\n')
     return field_elements_attribute_1, field_elements_attribute_2, fields_without_id_name, fields_without_id_field_ref, attribute_overview, text_elements, unit_elements, freq_offset_elements
 
 
@@ -379,11 +380,11 @@ total_freq_offsets                   = freq_offsets_opa + freq_offsets_lim + fre
 
 #for item in range(0,len(total_no_id_field_def_nemo_name)):
 # print ' This variable {:15} has no id but it has a field_ref = {}'.format(total_no_id_field_def_nemo_name[item], total_field_def_nemo_grid_ref[item])
-print ' The length of the list with fields without an id is: ', len(total_no_id_field_def_nemo_name), '\n'
+print(' The length of the list with fields without an id is: ', len(total_no_id_field_def_nemo_name), '\n')
 
-print ' In total there are', len(total_field_def_nemo_id), 'fields defined with an id in the field_def files,', len(total_field_def_nemo_id) - len(list(set(total_field_def_nemo_id))), 'of these id\'s occur twice.\n'
+print(' In total there are', len(total_field_def_nemo_id), 'fields defined with an id in the field_def files,', len(total_field_def_nemo_id) - len(list(set(total_field_def_nemo_id))), 'of these id\'s occur twice.\n')
 
-print ' The atribute overview of all field_def files:\n ', list(set(total_attribute_overview_nemo_opa)), '\n'
+print(' The atribute overview of all field_def files:\n ', list(set(total_attribute_overview_nemo_opa)), '\n')
 
 for text in total_texts:
  if text == None: total_texts[total_texts.index(text)] = "None"
@@ -420,9 +421,9 @@ def check_which_list_elements_are_identical(list_of_attribute_1, list_of_attribu
       id_list      .append(list_of_attribute_1[indices_identical_ids[identical_child]])
       grid_ref_list.append(list_of_attribute_2[indices_identical_ids[identical_child]])
      #print indices_identical_ids[identical_child], list_of_attribute_1[indices_identical_ids[identical_child]], list_of_attribute_2[indices_identical_ids[identical_child]]
-     if not check_all_list_elements_are_identical(id_list)      : print ' WARNING: Different ids in sublist [should never occur] at positions:', indices_identical_ids, id_list
-     if not check_all_list_elements_are_identical(grid_ref_list): print ' WARNING: The variable {:22} has different grid definitions, at positions: {:20} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list)
-     if message_occurence_identical_id and len(indices_identical_ids) > 1: print ' The variable {:22} occurs more than once, at positions: {:20} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list)
+     if not check_all_list_elements_are_identical(id_list)      : print(' WARNING: Different ids in sublist [should never occur] at positions:', indices_identical_ids, id_list)
+     if not check_all_list_elements_are_identical(grid_ref_list): print(' WARNING: The variable {:22} has different grid definitions, at positions: {:20} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list))
+     if message_occurence_identical_id and len(indices_identical_ids) > 1: print(' The variable {:22} occurs more than once, at positions: {:20} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list))
      if len(indices_identical_ids) > 1:  list_of_duplicate_variables.append(id_list[0])
     return list(set(list_of_duplicate_variables))
 
@@ -480,7 +481,7 @@ def load_checkvars_excel(excel_file):
         coldict = {}
         for colname in [table_colname, var_colname, prio_colname, dimension_colname, longname_colname, unit_colname, link_colname, comment_colname, description_colname, miplist_colname, model_component_colname, ping_units_colname, ping_comment_colname]:
             if colname not in header:
-              print " Could not find the column: ", colname, " in the sheet", sheet, "\n in the file", excel_file, "\n"
+              print(" Could not find the column: ", colname, " in the sheet", sheet, "\n in the file", excel_file, "\n")
               quit()
             coldict[colname] = header.index(colname)
         nr_of_header_lines = 2
@@ -501,8 +502,8 @@ def load_checkvars_excel(excel_file):
 
 
 if os.path.isfile(nemo_only_dr_nodummy_file_xlsx) == False: 
- print ' The file ', nemo_only_dr_nodummy_file_xlsx, '  does not exist.';
- print ' The correct file can be generated by: ./create-nemo-only-list/create-nemo-only-list.sh'
+ print(' The file ', nemo_only_dr_nodummy_file_xlsx, '  does not exist.');
+ print(' The correct file can be generated by: ./create-nemo-only-list/create-nemo-only-list.sh')
  sys.exit(' stop')
 
 # Read the excel file with the NEMO data request:
@@ -531,7 +532,7 @@ for element_counter in range(0,len(dr_ping_component)):
 # Create the output_freq attribute from the table name:
 table_list_of_dr = list(set(dr_table))
 for table in range(0,len(table_list_of_dr)):
- if not table_list_of_dr[table] in set(["", "SImon", "Omon", "Emon", "EmonZ", "SIday", "Oday", "Eday", "Oyr", "Oclim", "Ofx", "Odec", "3hr"]): print "\n No rule defined for the encountered table: ", table_list_of_dr[table], "\n This probably needs an additon to the code of create-basic-ec-earth-cmip6-nemo-namelist.py.\n"
+ if not table_list_of_dr[table] in set(["", "SImon", "Omon", "Emon", "EmonZ", "SIday", "Oday", "Eday", "Oyr", "Oclim", "Ofx", "Odec", "3hr"]): print("\n No rule defined for the encountered table: ", table_list_of_dr[table], "\n This probably needs an additon to the code of create-basic-ec-earth-cmip6-nemo-namelist.py.\n")
 
 # Creating a list with the output_freq attribute and its value if a relevant value is known, otherwise omit attribute definiton:
 dr_output_frequency = dr_table[:]  # Take care here: a slice copy is needed.
@@ -591,7 +592,7 @@ for i in range(0, len(dr_varname)):
  if not dr_varname[i] == "":
   number_of_field_element = number_of_field_element + 1
   index_in_ping_list = total_pinglist_id.index(dr_varname[i])
-  if not dr_varname[i] == total_pinglist_id[index_in_ping_list]: print ' WARNING: Different names [should not occur]:', dr_varname[i], total_pinglist_id[index_in_ping_list]
+  if not dr_varname[i] == total_pinglist_id[index_in_ping_list]: print(' WARNING: Different names [should not occur]:', dr_varname[i], total_pinglist_id[index_in_ping_list])
  #print ' {:20} {:20} '.format(dr_varname[i], total_pinglist_id[index_in_ping_list])
 
   # Creating a list with the grid_ref attribute and its value as abstracted from the field_def files:
@@ -599,7 +600,7 @@ for i in range(0, len(dr_varname)):
    # Adding the grid_ref attribute with its value (or alternatively the domain_ref attribute with its value):
    if not total_pinglist_field_ref[index_in_ping_list] in total_field_def_nemo_id:
     nr_of_missing_fields_in_field_def = nr_of_missing_fields_in_field_def + 1
-    print ' A field_ref in one of the ping files is not found in any of the field_def files: ', nr_of_missing_fields_in_field_def, total_pinglist_field_ref[index_in_ping_list]
+    print(' A field_ref in one of the ping files is not found in any of the field_def files: ', nr_of_missing_fields_in_field_def, total_pinglist_field_ref[index_in_ping_list])
    else:
     nr_of_available_fields_in_field_def = nr_of_available_fields_in_field_def + 1
    #print 'available: ', nr_of_available_fields_in_field_def, total_pinglist_field_ref[index_in_ping_list]
@@ -649,7 +650,7 @@ for i in range(0, len(dr_varname)):
     cmor_table_realm = getattr(t, "modeling_realm")
     cmor_table_units = getattr(t, "units")
     if False:
-     if cmor_table_units != str(dr_unit[i]): print ' The cmor units differ from cmor table and from the data request: ', cmor_table_units, ' versus ', str(dr_unit[i])
+     if cmor_table_units != str(dr_unit[i]): print(' The cmor units differ from cmor table and from the data request: ', cmor_table_units, ' versus ', str(dr_unit[i]))
     if not hasattr(t, 'time_operator'):
      cmor_table_operation = 'operation="once"'
      cmor_table_freq_op   = 'freq_op='+dr_output_frequency[i][12:]
@@ -690,18 +691,18 @@ for i in range(0, len(dr_varname)):
   # Checking whether duplicate IDs are produced, in case add an extension "_2" in order to prevent duplicate IDs:
   test_var_id_in_created_file_def = 'id_'+dr_output_frequency[i][13:15]+'_'+dr_varname[i]
   if test_var_id_in_created_file_def in var_id_in_created_file_def:
-   print ' \n WARNING: A duplicate id definition for ' + test_var_id_in_created_file_def + ' is made unique by adding an extension.'
+   print(' \n WARNING: A duplicate id definition for ' + test_var_id_in_created_file_def + ' is made unique by adding an extension.')
    # Check in addtion in this block for Oclim variables which are already asked by Omon, skip them to prevent a netcdf file with two equal variable names:
    index_var =  var_id_in_created_file_def.index(test_var_id_in_created_file_def)
    if dr_table[index_var] in ['Omon', 'Oclim'] and dr_table[i] in ['Omon', 'Oclim']:
-    print ' SKIP: ', dr_varname[index_var], dr_table[i], ' because this variable - table combination is also asked for table', dr_table[index_var]
+    print(' SKIP: ', dr_varname[index_var], dr_table[i], ' because this variable - table combination is also asked for table', dr_table[index_var])
     include_variable = False
    test_var_id_in_created_file_def = test_var_id_in_created_file_def + '_2'
   var_id_in_created_file_def[i] = test_var_id_in_created_file_def
 
   # Check whether the model component matches with the SImon, SIday table, if mismatch set model component equal to "lim":
   if dr_table[i] in ["SImon", "SIday"] and dr_ping_component[i] != 'lim': 
-   print ' \n WARNING: Table - model component matching issue with the variable:', '"'+dr_varname[i]+'"', 'in table', '"'+dr_table[i]+'"', 'orginating from model component', '"'+dr_ping_component[i]+'"', '. Model component wil be set to "lim".'
+   print(' \n WARNING: Table - model component matching issue with the variable:', '"'+dr_varname[i]+'"', 'in table', '"'+dr_table[i]+'"', 'orginating from model component', '"'+dr_ping_component[i]+'"', '. Model component wil be set to "lim".')
    dr_ping_component[i] = "lim"
 
  #print i, number_of_field_element, " cmor table = ", dr_table[i], " cmor varname = ", dr_varname[i], " model component = ", dr_ping_component[i], "  nemo code name = ", total_pinglist_field_ref[index_in_ping_list], "  expression = ", total_pinglist_text[index_in_ping_list], " ping idex = ", index_in_ping_list
@@ -712,8 +713,8 @@ for i in range(0, len(dr_varname)):
 #else:
 # print i, " Empty line" # Filter the empty lines in the xlsx between the table blocks.
 
-  if dr_varname[i] in vars_with_duplicate_id_definition_total: print ' \n WARNING: A variable is used with an id which is used twice in an id definition. The variable = ', dr_varname[i], ' the id = ', var_id_in_created_file_def[i]
-  if dr_unit[i] != dr_ping_units[i]:                           print ' \n WARNING: The cmor_unit and ping_unit differ for variable ', dr_varname[i], ' units compare as:', dr_unit[i], ' versus ', dr_ping_units[i]
+  if dr_varname[i] in vars_with_duplicate_id_definition_total: print(' \n WARNING: A variable is used with an id which is used twice in an id definition. The variable = ', dr_varname[i], ' the id = ', var_id_in_created_file_def[i])
+  if dr_unit[i] != dr_ping_units[i]:                           print(' \n WARNING: The cmor_unit and ping_unit differ for variable ', dr_varname[i], ' units compare as:', dr_unit[i], ' versus ', dr_ping_units[i])
 
 
   # Checking whether variables are used that are present in the default file_def files with an operation definition different from: operation="average"
@@ -723,9 +724,9 @@ for i in range(0, len(dr_varname)):
   #  more file_def_nemo-*|grep -e'operation="average"' |sed -e 's/.*field field_ref="/#/'  -e 's/".*name=.*$/#/' -e 's/#/"/g' > average-vars.txt
   #  more file_def_nemo-*|grep -e operation=|grep -v -e 'operation="average"' -e 'operation="instant"' -e 'operation="maximum"' |sed -e 's/.*field field_ref="/#/'  -e 's/".*name=.*$/#/' -e 's/#/"/g'|wc
   if total_pinglist_field_ref[index_in_ping_list] in ["tdenit", "tnfix", "tcflx", "tcflxcum", "tcexp", "tintpp", "pno3tot", "ppo4tot", "psiltot", "palktot", "pfertot", "tdenit", "tnfix", "tcflx", "tcflxcum", "tcexp", "tintpp", "pno3tot", "ppo4tot", "psiltot", "palktot", "pfertot", "tdenit", "tnfix", "tcflx", "tcflxcum", "tcexp", "tintpp", "pno3tot", "ppo4tot", "psiltot", "palktot", "pfertot"]:
-      print ' \n WARNING: The cmor variable', '"'+dr_varname[i]+'"', 'with field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', 'is used with operation="average" while a variable with the same name in the default file_def files uses operation="instant".'
+      print(' \n WARNING: The cmor variable', '"'+dr_varname[i]+'"', 'with field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', 'is used with operation="average" while a variable with the same name in the default file_def files uses operation="instant".')
   if total_pinglist_field_ref[index_in_ping_list] in ["mldkz5", "mldr10_1max", "mldkz5"]:
-      print ' \n WARNING: The cmor variable', '"'+dr_varname[i]+'"', 'with field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', 'is used with operation="average" while a variable with the same name in the default file_def files uses operation="maximum".'
+      print(' \n WARNING: The cmor variable', '"'+dr_varname[i]+'"', 'with field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', 'is used with operation="average" while a variable with the same name in the default file_def files uses operation="maximum".')
 
 flat_nemo_file_def_xml_file.write('\n\n    </file>\n')
 flat_nemo_file_def_xml_file.write('\n\n   </file_group>\n')
@@ -780,8 +781,8 @@ if produce_varlistjson_file:
  os.system(command_2)
  os.system(command_3)
 
- print ' \n The produced', drqlistjson_file_name, ' file contains', i, 'variables.'
- print ' \n The produced', varlistjson_file_name, ' is a variant: ordened by model component, the ignored fields are dropped and the preferences are applied.'
+ print(' \n The produced', drqlistjson_file_name, ' file contains', i, 'variables.')
+ print(' \n The produced', varlistjson_file_name, ' is a variant: ordened by model component, the ignored fields are dropped and the preferences are applied.')
 
 ################################################################################
 ###################################    7     ###################################
@@ -789,7 +790,7 @@ if produce_varlistjson_file:
 
 # READING THE BASIC FLAT FILE_DEF FILE:
 
-if os.path.isfile(basic_flat_file_def_file_name) == False: print ' The file ', basic_flat_file_def_file_name, '  does not exist.'; sys.exit(' stop')
+if os.path.isfile(basic_flat_file_def_file_name) == False: print(' The file ', basic_flat_file_def_file_name, '  does not exist.'); sys.exit(' stop')
 
 tree_basic_file_def             = xmltree.parse(basic_flat_file_def_file_name)
 root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
@@ -873,7 +874,7 @@ basic_nemo_file_def_xml_file.write('\n\n  </file_definition>\n')
 
 basic_nemo_file_def_xml_file.close()
 
-print '\n There are', field_counter, 'fields distributed over', file_counter, 'files.\n'
+print('\n There are', field_counter, 'fields distributed over', file_counter, 'files.\n')
 
 #print tree_basic_file_def
 #print root_basic_file_def.tag                     # Shows the root file_definition element tag
@@ -914,7 +915,7 @@ if produce_nemopar_json:
  nemopar.write('    }\n')
  nemopar.write(']\n')
  nemopar.close()
- print ' The produced new-nemopar.json file contains', i, 'variables.'
+ print(' The produced new-nemopar.json file contains', i, 'variables.')
 
 
 
@@ -924,7 +925,7 @@ if produce_nemopar_json:
 
 # TEST THE RESULT: READING THE BASIC FILE_DEF FILE:
 
-if os.path.isfile(basic_file_def_file_name) == False: print ' The file ', basic_file_def_file_name, '  does not exist.'; sys.exit(' stop')
+if os.path.isfile(basic_file_def_file_name) == False: print(' The file ', basic_file_def_file_name, '  does not exist.'); sys.exit(' stop')
 
 tree_basic_file_def             = xmltree.parse(basic_file_def_file_name)
 root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements

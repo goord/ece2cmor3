@@ -82,7 +82,8 @@ def coords(df, root, meta):
     if grid_size == 10407:
         target_grid_ = "T159"
         deg = 80
-        gridfile_ = os.path.join(os.path.dirname(__file__), "resources/lpjg-grid-content", "ingrid_T159_unstructured.txt")
+        gridfile_ = os.path.join(os.path.dirname(__file__), "resources/lpjg-grid-content",
+                                 "ingrid_T159_unstructured.txt")
     elif grid_size != 25799:
         log.error("Current grid with %i cells is not supported!", grid_size)
         exit(-1)
@@ -194,7 +195,7 @@ def execute(tasks):
             gzfile = os.path.join(lpjg_path_, task.source.variable() + "_" + freqstr + ".out.gz")
             if os.path.exists(gzfile):
                 lpjgfile = os.path.join(ncpath_, task.source.variable() + "_" + freqstr + ".out")
-                log.info("Uncompressing file "+gzfile+" to temporary file "+lpjgfile)
+                log.info("Uncompressing file " + gzfile + " to temporary file " + lpjgfile)
                 with gzip.open(gzfile, 'rb') as f_in, open(lpjgfile, 'wb') as f_out:
                     shutil.copyfileobj(f_in, f_out)
             else:
@@ -210,7 +211,7 @@ def execute(tasks):
                           "Skipping CMORization of variable %s." % (lpjgfile, task.source.variable()))
                 task.set_failed()
                 continue
-            log.info("Processing file "+lpjgfile)
+            log.info("Processing file " + lpjgfile)
             setattr(task, cmor_task.output_path_key, task.source.variable() + ".out")
             outname = task.target.out_name
             outdims = task.target.dimensions
@@ -245,7 +246,8 @@ def execute(tasks):
                     break
 
                 # special treatment of fco2nat=fco2nat_lpjg+fgco2_nemo
-                if outname=="fco2nat" and freq=="mon" and table=="Amon" and (cmor.get_cur_dataset_attribute("source_id") == "EC-Earth3-CC"):
+                if outname == "fco2nat" and freq == "mon" and table == "Amon" and (
+                        cmor.get_cur_dataset_attribute("source_id") == "EC-Earth3-CC"):
                     if not add_nemo_variable(task, ncfile, "fgco2", "1m"):
                         log.error("There was a problem adding nemo variable %s to %s in table %s... "
                                   "exiting ece2cmor3" % ("fgco2", task.target.variable, task.target.table))
@@ -278,8 +280,8 @@ def execute(tasks):
                 # if this variable has one or more "singleton axes" (i.e. axes 
                 # of length 1) which can be those dimensions 
                 # named "type*", these will be created here
-                for lpjgcol in outdims.split():                    
-                    if lpjgcol.startswith("type"): 
+                for lpjgcol in outdims.split():
+                    if lpjgcol.startswith("type"):
                         # THIS SHOULD BE LINKED TO CIP6_coordinate.json!
                         if lpjgcol == "typenwd":
                             singleton_value = "herbaceous_vegetation"
@@ -440,11 +442,11 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
         df_list = [df]
 
     if freq.startswith("yr"):
-        str_year=str(int(df_list[0].columns[0]))
+        str_year = str(int(df_list[0].columns[0]))
     else:
-        str_year=str(int(df_list[0].columns[0][1]))
+        str_year = str(int(df_list[0].columns[0][1]))
 
-    log.info( "Creating lpjg netcdf file for variable " + outname + " for year " + str_year )
+    log.info("Creating lpjg netcdf file for variable " + outname + " for year " + str_year)
 
     ncfile = os.path.join(ncpath_, outname + "_" + freq + "_" + str_year + ".nc")
     # Note that ncfile could be named anything, it will be deleted later and the cmorization takes care of proper
@@ -489,10 +491,12 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
         variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
                                        shuffle=False, complevel=5, fill_value=meta['missing'])
         if outname == "tsl":
-            variable[:] = df_normalised[0].values.T  # TODO: see out2nc for what to do here if you have the LPJG regular grid
+            variable[:] = df_normalised[
+                0].values.T  # TODO: see out2nc for what to do here if you have the LPJG regular grid
         else:
             dumvar = df_normalised[0].values.T
-            variable[:] = np.where(dumvar < 1.e+20, dumvar, 0.)   # TODO: see out2nc for what to do here if you have the LPJG regular grid
+            variable[:] = np.where(dumvar < 1.e+20, dumvar,
+                                   0.)  # TODO: see out2nc for what to do here if you have the LPJG regular grid
 
     else:
         root.createDimension('fourthdim', N_dfs)
@@ -502,10 +506,12 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
                                        shuffle=False, complevel=5, fill_value=meta['missing'])
         for l in range(N_dfs):
             if outname == "tsl":
-                variable[:, l, :, :] = df_normalised[l].values.T  # TODO: see out2nc for what to do here if you have the LPJG regular grid
+                variable[:, l, :, :] = df_normalised[
+                    l].values.T  # TODO: see out2nc for what to do here if you have the LPJG regular grid
             else:
                 dumvar = df_normalised[l].values.T
-                variable[:, l, :, :] = np.where(dumvar < 1.e+20, dumvar, 0.)   # TODO: see out2nc for what to do here if you have the LPJG regular grid
+                variable[:, l, :, :] = np.where(dumvar < 1.e+20, dumvar,
+                                                0.)  # TODO: see out2nc for what to do here if you have the LPJG regular grid
 
     root.sync()
     root.close()
@@ -517,7 +523,7 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
         cdo.remapycon('n80', input="-setgrid," + gridfile_ + " " + temp_ncfile,
                       output=ncfile)
     else:
-        cdo.remapycon('n128',input="-setgrid," + gridfile_ + " " + temp_ncfile,
+        cdo.remapycon('n128', input="-setgrid," + gridfile_ + " " + temp_ncfile,
                       output=ncfile)  # TODO: add remapping for possible other grids
 
     os.remove(temp_ncfile)
@@ -531,15 +537,13 @@ def find_nemo_file(varname, nemo_freq):
     # find the nemo output folder for this leg (assumes it is in the runtime/output/nemo/??? folder)
     path_output_lpjg, leg_no = os.path.split(lpjg_path_)
     path_output = os.path.split(path_output_lpjg)
-    nemo_path = os.path.join(path_output[0],'nemo',leg_no)
+    nemo_path = os.path.join(path_output[0], 'nemo', leg_no)
     # get the file which contains fgco2
     try:
         nemo_files = cmor_utils.find_nemo_output(nemo_path, exp_name_)
     except OSError:
-        log.error("Cannot find any nemo output files in %s"
-                  % (nemo_path))
+        log.error("Cannot find any nemo output files in %s" % nemo_path)
         return ""
-    print(str(nemo_files))
     file_candidates = [f for f in nemo_files if cmor_utils.get_nemo_frequency(f, exp_name_) == nemo_freq]
     results = []
     for ncfile in file_candidates:
@@ -548,11 +552,11 @@ def find_nemo_file(varname, nemo_freq):
             results.append(ncfile)
         ds.close()
     # simplified error reporting
-    if len(results) !=1:
-        log.error("Cannot find any suitable nemo output files in %s"
-                  % (nemo_path))
+    if len(results) != 1:
+        log.error("Cannot find any suitable nemo output files in %s" % nemo_path)
         return ""
     return results[0]
+
 
 # this function builds upon a combination of _get and save_nc functions from the out2nc.py tool originally by Michael
 #  Mischurow
@@ -579,26 +583,28 @@ def add_nemo_variable(task, ncfile, nemo_var_name, nemo_var_freq):
     dims_maskfile = ds_maskfile.dimensions
     dims_ofile = ds_ifile.dimensions
     if dims_maskfile['x'].size != dims_ofile['x'].size or dims_maskfile['y'].size != dims_ofile['y'].size:
-            log.error("NEMO mask and output file, required for NEMO variable %s needed for target %s in table %s do not have same dimensions... "
-                      % (nemo_var_name, task.target.variable, task.target.table))
-            return False
+        log.error(
+            "NEMO mask and output file, required for NEMO variable %s needed for target %s in table %s do not have same dimensions... "
+            % (nemo_var_name, task.target.variable, task.target.table))
+        return False
     ds_maskfile.close()
     ds_ifile.close()
 
     # perform the conservative remapping using cdo
-    #cdo -L selvar,${varname} ${ifile} tmp1.nc
-    #CDO_REMAP_NORM=destarea cdo -L invertlat -setmisstoc,0 -remapycon,n128 -selindexbox,2,361,2,292 -mul tmp1.nc $mask $ofile
+    # cdo -L selvar,${varname} ${ifile} tmp1.nc
+    # CDO_REMAP_NORM=destarea cdo -L invertlat -setmisstoc,0 -remapycon,n128 -selindexbox,2,361,2,292 -mul tmp1.nc $mask $ofile
     log.info("Using the following cdo version for conservative remapping")
     os.system("cdo -V")
-    os.system("cdo -L selvar,"+nemo_var_name+" "+nemo_ifile+" "+interm_file)
+    os.system("cdo -L selvar," + nemo_var_name + " " + nemo_ifile + " " + interm_file)
     if target_grid_ == "T159":
-        remap_grid='n80'
+        remap_grid = 'n80'
     elif target_grid_ == "T255":
-        remap_grid='n128'
+        remap_grid = 'n128'
     else:
         log.error("WRONG GRID %s in function add_nemo_variable in lpjg2cmor.py!" % target_grid_)
         exit(-1)
-    os.system("CDO_REMAP_NORM=destarea cdo -L invertlat -setmisstoc,0 -remapycon,"+remap_grid+" -selindexbox,2,361,2,292 -mul "+interm_file+" "+nemo_maskfile+" "+nemo_ofile)
+    os.system(
+        "CDO_REMAP_NORM=destarea cdo -L invertlat -setmisstoc,0 -remapycon," + remap_grid + " -selindexbox,2,361,2,292 -mul " + interm_file + " " + nemo_maskfile + " " + nemo_ofile)
 
     if not os.path.exists(nemo_ofile):
         log.error("There was a problem remapping %s variable in nemo output file %s needed for %s in table %s... "
@@ -608,7 +614,7 @@ def add_nemo_variable(task, ncfile, nemo_var_name, nemo_var_freq):
     # add the nemo output to the lpjg output
     if os.path.exists(interm_file):
         os.remove(interm_file)
-    os.system("cdo -L add -selvar,"+task.target.variable+" "+ncfile+" "+nemo_ofile+" "+interm_file)
+    os.system("cdo -L add -selvar," + task.target.variable + " " + ncfile + " " + nemo_ofile + " " + interm_file)
     if not os.path.exists(interm_file):
         log.error("There was a problem adding remapped %s variable from nemo output file %s to %s in table %s... "
                   % (nemo_var_name, nemo_ifile, task.target.variable, task.target.table))
@@ -619,6 +625,7 @@ def add_nemo_variable(task, ncfile, nemo_var_name, nemo_var_freq):
     shutil.move(interm_file, ncfile)
 
     return True
+
 
 # Extracts single column from the .out-file
 def get_lpjg_datacolumn(df, freq, colname, months_as_cols):
@@ -632,7 +639,7 @@ def get_lpjg_datacolumn(df, freq, colname, months_as_cols):
             df.set_index('timecolumn', append=True, inplace=True)
         df = df[[colname]]
         df = df.unstack()
-         
+
     elif freq.startswith("yr"):
         df = df.pop(colname)
         df = df.unstack()
@@ -664,9 +671,9 @@ def execute_single_task(dataset, task):
     singleton_axis = []
     for ax in dir(task):
         if ax.startswith("singleton_"):
-            singleton_axis += [getattr(task, ax)] 
-            
-    axes = lon_axis + lat_axis + lu_axis + veg_axis + sdep_axis + t_axis + singleton_axis 
+            singleton_axis += [getattr(task, ax)]
+
+    axes = lon_axis + lat_axis + lu_axis + veg_axis + sdep_axis + t_axis + singleton_axis
     varid = create_cmor_variable(task, dataset, axes)
 
     ncvar = dataset.variables[task.target.out_name]
@@ -765,6 +772,7 @@ def create_cmor_variable(task, dataset, axes):
         return cmor.variable(table_entry=str(task.target.out_name), units=str(unit), axis_ids=axes,
                              original_name=str(srcvar))
 
+
 # Creates a cmor landUse axis
 def create_landuse_axis(task, lpjgfile, freq):
     if landuse_requested_:
@@ -819,12 +827,13 @@ def create_sdepth_axis(task, lpjgfile, freq):
     setattr(task, "sdepth_axis", sdep_id)
     return
 
+
 # Creates a cmor singleton depth axis
 def create_singleton_axis(task, lpjgfile, lpjgcol, singleton_value):
-    log.info("Creating singleton axis for %s using file %s..." % (lpjgcol,lpjgfile))
+    log.info("Creating singleton axis for %s using file %s..." % (lpjgcol, lpjgfile))
 
-    axis_name = "singleton_"+lpjgcol+"_axis"   
+    axis_name = "singleton_" + lpjgcol + "_axis"
     single_id = cmor.axis(table_entry=lpjgcol, units='none', coord_vals=[singleton_value])
-    
+
     setattr(task, axis_name, single_id)
     return

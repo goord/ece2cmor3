@@ -14,6 +14,7 @@
 # Note that this script is called by the script:
 #  genecec-per-mip-experiment.sh
 #
+from __future__ import print_function
 import sys
 import os
 
@@ -292,10 +293,10 @@ def main():
 
     args = parser.parse_args()
 
-    print ""
-    print "Running drq2ppt.py with:"
-    print " ./drq2ppt.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args)
-    print ""
+    print("")
+    print("Running drq2ppt.py with:")
+    print(" ./drq2ppt.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args))
+    print("")
 
     if args.vars is not None and not os.path.isfile(args.vars):
         log.fatal("Your variable list json file %s cannot be found." % args.vars)

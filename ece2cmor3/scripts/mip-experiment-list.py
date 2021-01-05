@@ -11,6 +11,7 @@
 # which is part of ece2cmor3.
 #
 
+from __future__ import print_function
 from dreqPy import dreq
 dq = dreq.loadDreq()
 
@@ -24,20 +25,20 @@ mip_list_file = open(mip_list_file_name, 'w' )
 for mip in dq.coll['mip'].items:
   mip_counter = mip_counter + 1
  #print '{:3} {:15} {}'.format(mip_counter, mip.label, mip)
-  print '{:3} {:15} {}'.format(mip_counter, mip.label, str(mip).replace('Item <1.1 Model Intercomparison Project>: [', '').replace(']', '').replace(mip.label, '').replace(' - set of', 'DECK - set of'))
+  print('{:3} {:15} {}'.format(mip_counter, mip.label, str(mip).replace('Item <1.1 Model Intercomparison Project>: [', '').replace(']', '').replace(mip.label, '').replace(' - set of', 'DECK - set of')))
   # Loop over the MIP experiments:
   for u in dq.inx.iref_by_sect[mip.uid].a['experiment']:
     ex = dq.inx.uid[u]
     if mip.label != ex.mip:
-     print ' The mip.label and ex.mip are different: {:15} versus {:15}'.format(mip.label, ex.mip)
+     print(' The mip.label and ex.mip are different: {:15} versus {:15}'.format(mip.label, ex.mip))
     mip_list_file.write( '{:12} {:28} tier-{:1}  {}'.format(ex.mip, ex.label, ex.tier[0], ex.title) + '\n')
     experiment_counter = experiment_counter + 1
     
 mip_list_file.close()
 
-print 'Number of MIPs is: {:3} and the number of MIP experiments is: {}'.format(mip_counter, experiment_counter)
+print('Number of MIPs is: {:3} and the number of MIP experiments is: {}'.format(mip_counter, experiment_counter))
 
-print '\nThe file ', mip_list_file_name, ' has been created.\n'
+print('\nThe file ', mip_list_file_name, ' has been created.\n')
 
 
 experiment_tiers_included = [1,2,3]
@@ -58,7 +59,7 @@ for mip in dq.coll['mip'].items:
   if mip.label in ec_earth_mips: 
    mip_counter = mip_counter + 1
   #print '{:3} {:15} {}'.format(mip_counter, mip.label, mip)
-   print '{:3} {:15} {}'.format(mip_counter, mip.label, str(mip).replace('Item <1.1 Model Intercomparison Project>: [', '').replace(']', '').replace(mip.label, '').replace(' - set of', 'DECK - set of'))
+   print('{:3} {:15} {}'.format(mip_counter, mip.label, str(mip).replace('Item <1.1 Model Intercomparison Project>: [', '').replace(']', '').replace(mip.label, '').replace(' - set of', 'DECK - set of')))
    # Loop over the MIP experiments:
   #mip_list_file.write( '{:36}'.format(mip.label) + '\n')
    mip_list_file.write( '\n{:36} {}'.format(mip.label, str(mip).replace('Item <1.1 Model Intercomparison Project>: [', '').replace(']', '').replace(mip.label, '').replace(' - set of', 'DECK - set of')) + '\n')
@@ -71,6 +72,6 @@ for mip in dq.coll['mip'].items:
     
 mip_list_file.close()
 
-print 'Number of MIPs is: {:3} and the number of MIP experiments is: {}'.format(mip_counter, experiment_counter)
+print('Number of MIPs is: {:3} and the number of MIP experiments is: {}'.format(mip_counter, experiment_counter))
 
-print '\nThe file ', mip_list_file_name, ' has been created.\n'
+print('\nThe file ', mip_list_file_name, ' has been created.\n')

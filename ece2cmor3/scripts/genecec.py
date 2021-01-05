@@ -18,6 +18,7 @@
 # This script is part of the subpackage genecec (GENerate EC-Eearth Control output files)
 # which is part of ece2cmor3.
 
+from __future__ import print_function
 import sys
 import os
 from dreqPy import dreq
@@ -106,7 +107,7 @@ os.system(command_00)
 # Loop over MIPs:
 for mip in dq.coll['mip'].items:
   mip_name  = mip.label
-  print '\n Starting to work on: ', mip_name, '\n'
+  print('\n Starting to work on: ', mip_name, '\n')
 
   if mip_name == 'CMIP' or mip_name == 'ScenarioMIP':
    if mip_name == 'CMIP':
@@ -114,7 +115,7 @@ for mip in dq.coll['mip'].items:
    elif mip_name == 'ScenarioMIP':
     ece_configurations = scenario_ece_configurations
    else:
-    print '\n Aborting genecec: programmer error: no case for: ', mip_name, ' in joined MIP treatment.\n'
+    print('\n Aborting genecec: programmer error: no case for: ', mip_name, ' in joined MIP treatment.\n')
     sys.exit()
 
    for model_configuration in sorted(ece_configurations.keys()):
@@ -171,13 +172,13 @@ for mip in dq.coll['mip'].items:
              os.system(command_11)  # Produce the metadata files for this MIP experiment.
              experiment_counter = experiment_counter + 1
           else:
-             print ' Tier {} experiments are not included: Skipping: {}'.format(ex.tier[0], command_01)
+             print(' Tier {} experiments are not included: Skipping: {}'.format(ex.tier[0], command_01))
        else:
-          print ' EC-Earth3 does not participate in {:11}: Skipping: {}'.format(mip_name, command_01)
+          print(' EC-Earth3 does not participate in {:11}: Skipping: {}'.format(mip_name, command_01))
 
   else:
     #print '\n Model configuration is: ', model_configuration, 'for', mip_name, ex.label, '\n'
-     print '\n Reporting that ', mip_name, ' concerns a usual single MIP case'
+     print('\n Reporting that ', mip_name, ' concerns a usual single MIP case')
      mip_list  = mip_name
      mip_label = mip_name
      if mip_name in ec_earth_mips:
@@ -253,11 +254,11 @@ for mip in dq.coll['mip'].items:
 
              experiment_counter = experiment_counter + 1
           else:
-             print ' Tier {} experiments are not included: Skipping: {}'.format(ex.tier[0], command_01)
+             print(' Tier {} experiments are not included: Skipping: {}'.format(ex.tier[0], command_01))
        else:
-          print ' EC-Earth3 does not participate in {:11}: Skipping: {}'.format(mip_name, command_01)
+          print(' EC-Earth3 does not participate in {:11}: Skipping: {}'.format(mip_name, command_01))
 
-print ' There are {} experiments included. '.format(experiment_counter)
+print(' There are {} experiments included. '.format(experiment_counter))
 
 
 # Add a test case with which all available variables over all EC-Earth MIP experiments are switched on,
