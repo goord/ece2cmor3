@@ -37,7 +37,7 @@ def main(args=None):
     parser.add_argument("--odir", metavar="DIR", type=str, default=None, help="Output directory, by default the "
                                                                               "metadata \'outpath\' entry")
     cmor_utils.ScriptUtils.add_model_exclusive_options(parser, "ece2cmor")
-    parser.add_argument("--ececonf", metavar='|'.join(components.ece_configs.keys()), type=str,
+    parser.add_argument("--ececonf", metavar='|'.join(list(components.ece_configs.keys())), type=str,
                         help="EC-Earth configuration (only used with --drq option)")
     parser.add_argument("--refd", metavar="YYYY-mm-dd", type=str, default="1850-01-01",
                         help="Reference date for output time axes")

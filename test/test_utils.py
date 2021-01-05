@@ -1,3 +1,8 @@
+from __future__ import division
+from builtins import str
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import datetime
 
 import netCDF4
@@ -33,9 +38,9 @@ class nemo_output_factory(object):
         self.layers = 0
 
     def make_grid(self, nlons_, nlats_, gridtype_, nlayers=0):
-        self.lons = numpy.fromfunction(lambda i, j: (i * 360 + 0.5) / ((nlons_ + nlats_ - j) + 2), (nlons_, nlats_),
+        self.lons = numpy.fromfunction(lambda i, j: old_div((i * 360 + 0.5), ((nlons_ + nlats_ - j) + 2)), (nlons_, nlats_),
                                        dtype=numpy.float64)
-        self.lats = numpy.fromfunction(lambda i, j: (j * 180 + 0.5) / ((nlats_ + nlons_ - i) + 2) - 90,
+        self.lats = numpy.fromfunction(lambda i, j: old_div((j * 180 + 0.5), ((nlats_ + nlons_ - i) + 2)) - 90,
                                        (nlons_, nlats_), dtype=numpy.float64)
         self.gridtype = gridtype_
         self.depthaxis = gridtype_.replace("grid", "depth")
@@ -117,7 +122,7 @@ class nemo_output_factory(object):
             varz.bounds = z + "_bounds"
             maxdepth = 6000.
             nz = self.layers
-            step = maxdepth / nz
+            step = old_div(maxdepth, nz)
             zarray = numpy.arange(0.1 * step, maxdepth, step)
             varz[:] = zarray
 

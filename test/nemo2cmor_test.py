@@ -1,3 +1,5 @@
+from __future__ import division
+from past.utils import old_div
 import datetime
 import json
 import logging
@@ -24,7 +26,7 @@ def circwave(t, j, i):
 
 
 def circwave3d(t, z, j, i):
-    return 15 * math.cos((i * i + j * j) / 1000. + 0.1 * t) * (z / 12)
+    return 15 * math.cos((i * i + j * j) / 1000. + 0.1 * t) * (old_div(z, 12))
 
 
 def hypwave(t, j, i):
@@ -144,8 +146,8 @@ class nemo2cmor_tests(unittest.TestCase):
     @staticmethod
     def test_create_grid():
         dim = 1000
-        lons = numpy.fromfunction(lambda i, j: (i * 360 + 0.5) / (0.5 * (dim + j) + 2), (dim, dim), dtype=numpy.float64)
-        lats = numpy.fromfunction(lambda i, j: (j * 180 + 0.5) / (0.5 * (dim + i) + 2) - 90, (dim, dim),
+        lons = numpy.fromfunction(lambda i, j: old_div((i * 360 + 0.5), (0.5 * (dim + j) + 2)), (dim, dim), dtype=numpy.float64)
+        lats = numpy.fromfunction(lambda i, j: old_div((j * 180 + 0.5), (0.5 * (dim + i) + 2)) - 90, (dim, dim),
                                   dtype=numpy.float64)
 
         grid = nemo2cmor.nemo_grid("sum", lons, lats)

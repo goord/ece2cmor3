@@ -55,7 +55,7 @@ def main():
 
     active_components = cmor_utils.ScriptUtils.get_active_components(args)
 
-    for model in components.models.keys():
+    for model in list(components.models.keys()):
         if model in active_components:
             check_obsolete(components.models[model][components.table_file])
 

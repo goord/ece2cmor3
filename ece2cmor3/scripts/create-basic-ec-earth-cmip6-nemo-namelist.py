@@ -46,6 +46,10 @@
 # the basic file_def file is still a valid xml file.
 
 from __future__ import print_function
+from builtins import zip
+from builtins import next
+from builtins import str
+from builtins import range
 import xml.etree.ElementTree as xmltree
 from ece2cmor3 import cmor_target
 import os.path                                                # for checking file or directory existence with: os.path.isfile or os.path.isdir
@@ -303,8 +307,8 @@ def create_element_lists(file_name, attribute_1, attribute_2):
 
         # If field_group element level exists:
         for child in elements:
-         if child.tag != "field": print(' At expected "field" element level, a deviating tag ',  child.tag, ' is detected.', child.attrib.keys())
-         attribute_overview = attribute_overview + child.attrib.keys()  # Merge each step the next list of attribute keys with the overview list
+         if child.tag != "field": print(' At expected "field" element level, a deviating tag ',  child.tag, ' is detected.', list(child.attrib.keys()))
+         attribute_overview = attribute_overview + list(child.attrib.keys())  # Merge each step the next list of attribute keys with the overview list
 
          # If id attribute exits:
          if attribute_1 in child.attrib:
@@ -408,7 +412,7 @@ def check_all_list_elements_are_identical(iterator):
         return True
     return all(first == rest for rest in iterator)
 
-get_indices = lambda x, xs: [i for (y, i) in zip(xs, range(len(xs))) if x == y]
+get_indices = lambda x, xs: [i for (y, i) in zip(xs, list(range(len(xs)))) if x == y]
 
 def check_which_list_elements_are_identical(list_of_attribute_1, list_of_attribute_2):
     list_of_duplicate_variables = []

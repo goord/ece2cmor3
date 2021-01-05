@@ -1,3 +1,4 @@
+from builtins import str
 import logging
 import unittest
 from testfixtures import LogCapture

@@ -1,13 +1,15 @@
 import datetime
-
-import cmor
 import json
 import logging
 import os
 import tempfile
 
+import cmor
+from builtins import str
+from six import string_types
+
 from ece2cmor3 import __version__, cmor_target, cmor_task, nemo2cmor, ifs2cmor, lpjg2cmor, tm52cmor, postproc, \
-    cmor_utils, cmor_source
+    cmor_utils
 
 # Logger instance
 log = logging.getLogger(__name__)
@@ -77,7 +79,7 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
     metadata["latest_ece2cmor_version"] = __version__.version
     metadata["ece2cmor_git_revision"] = cmor_utils.get_git_hash()
     metadata["latest_applied_cmor_fixer_version"] = 'None'
-    for key, val in metadata.items():
+    for key, val in list(metadata.items()):
         log.info("Metadata attribute %s: %s", key, val)
     with tempfile.NamedTemporaryFile("r+w", suffix=".json", delete=False) as tmp_file:
         json.dump(metadata, tmp_file)
@@ -91,13 +93,13 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
 # Validation of setup configuration
 def validate_setup_settings():
     global prefix, table_dir, cmor_mode
-    if not table_dir or not isinstance(table_dir, str):
+    if not table_dir or not isinstance(table_dir, string_types):
         log.error("Invalid cmorization table string given...aborting")
         raise Exception("Cmorization table directory is empty or not a string")
     if not os.path.exists(table_dir):
         log.error("Cmorization table directory %s does not exist" % table_dir)
         raise Exception("Cmorization table directory does not exist")
-    if not prefix or not isinstance(prefix, str):
+    if not prefix or not isinstance(prefix, string_types):
         log.error("Cmorization table prefix is empty or not a string")
         raise Exception("Cmorization table prefix is empty or not a string")
     if cmor_mode not in [APPEND, APPEND_NC3, REPLACE, REPLACE_NC3, PRESERVE, PRESERVE_NC3]:

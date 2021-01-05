@@ -1,3 +1,9 @@
+from __future__ import division
+from builtins import str
+from builtins import range
+from past.builtins import basestring
+from builtins import object
+from past.utils import old_div
 import datetime
 import math
 
@@ -192,7 +198,7 @@ def get_nemo_frequency(filepath, expname):
 def read_time_stamps(path):
     command = cdo.Cdo()
     times = command.showtimestamp(input=path)[0].split()
-    return map(lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S"), times)
+    return [datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S") for s in times]
 
 
 def find_tm5_output(path, expname=None, varname=None, freq=None):
@@ -286,8 +292,8 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
         ntimes = 1 if time_selection is None else len(time_selection)
     else:
         ntimes = ncvar.shape[timdim] if time_selection is None else len(time_selection)
-    size = ncvar.size / ntimes
-    chunk = int(math.floor(4.0E+9 / (8 * size)))  # Use max 4 GB of memory
+    size = old_div(ncvar.size, ntimes)
+    chunk = int(math.floor(old_div(4.0E+9, (8 * size))))  # Use max 4 GB of memory
     if time_selection is not None and numpy.any(time_selection < 0):
         chunk = 1
     missval_in = getattr(ncvar, "missing_value", None)
@@ -429,7 +435,7 @@ def apply_mask(array, factor, term, mask, missval_in, missval_out):
     return array
 
 
-class ScriptUtils:
+class ScriptUtils(object):
 
     def __init__(self):
         pass
@@ -468,7 +474,7 @@ class ScriptUtils:
         result = list(result)
         # If no flag was found, activate all components in configuration
         if len(result) == 0:
-            return components.ece_configs.get(conf, components.models.keys())
+            return components.ece_configs.get(conf, list(components.models.keys()))
         return result
 
     @staticmethod

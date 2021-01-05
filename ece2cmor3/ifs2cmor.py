@@ -1,3 +1,8 @@
+from __future__ import division
+from builtins import zip
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import cmor
 import glob
 import logging
@@ -107,7 +112,7 @@ def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True)
         intersection = set(gpfiles.keys()).intersection(set(shfiles.keys()))
         if not any(intersection):
             log.error("Gridpoint files %s and spectral files %s correspond to different months, no overlap found..." %
-                      (str(gpfiles.values()), str(shfiles.values())))
+                      (str(list(gpfiles.values())), str(list(shfiles.values()))))
             ifs_gridpoint_files_ = {}
             ifs_spectral_files_ = {}
             return False
@@ -115,12 +120,12 @@ def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True)
             ifs_gridpoint_files_ = {date: gpfiles[date] for date in intersection}
             ifs_spectral_files_ = {date: shfiles[date] for date in intersection}
             log.warning("Gridpoint files %s and spectral files %s correspond to different months, found overlapping "
-                        "dates %s" % (str(gpfiles.values()), str(shfiles.values()), str(intersection)))
+                        "dates %s" % (str(list(gpfiles.values())), str(list(shfiles.values())), str(intersection)))
     else:
         ifs_gridpoint_files_, ifs_spectral_files_ = gpfiles, shfiles
     if ifs_init_gridpoint_file_ is None:
         if any(ifs_gridpoint_files_.values()):
-            ifs_init_gridpoint_file_ = ifs_gridpoint_files_.values()[0]
+            ifs_init_gridpoint_file_ = list(ifs_gridpoint_files_.values())[0]
         else:
             log.error("No gridpoint files found for experiment %s in directory %s, exiting initialization" %
                       (exp_name_, path))
@@ -134,7 +139,7 @@ def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True)
     if not os.path.exists(temp_dir_):
         os.makedirs(temp_dir_)
     if auto_filter_:
-        ini_gpf = None if ifs_init_gridpoint_file_ == ifs_gridpoint_files_.values()[0] else ifs_init_gridpoint_file_
+        ini_gpf = None if ifs_init_gridpoint_file_ == list(ifs_gridpoint_files_.values())[0] else ifs_init_gridpoint_file_
         grib_filter.initialize(ifs_gridpoint_files_, ifs_spectral_files_, temp_dir_, ini_gpfile=ini_gpf,
                                ini_shfile=ifs_init_spectral_file_)
     return True
@@ -183,10 +188,10 @@ def execute(tasks, nthreads=1):
         tasks_todo = tasks_no_filter
         for task in tasks_to_filter:
             if task.source.grid_id() == cmor_source.ifs_grid.point:
-                setattr(task, cmor_task.filter_output_key, ifs_gridpoint_files_.values())
+                setattr(task, cmor_task.filter_output_key, list(ifs_gridpoint_files_.values()))
                 tasks_todo.append(task)
             elif task.source.grid_id() == cmor_source.ifs_grid.spec:
-                setattr(task, cmor_task.filter_output_key, ifs_spectral_files_.values())
+                setattr(task, cmor_task.filter_output_key, list(ifs_spectral_files_.values()))
                 tasks_todo.append(task)
             else:
                 log.error("Task ifs source has unknown grid for %s in table %s" % (task.target.variable,
@@ -313,7 +318,7 @@ def clean_tmp_data(tasks):
                 data_paths = [data_path]
             for dpath in data_paths:
                 dp = str(dpath)
-                if dp not in ifs_spectral_files_.values() + ifs_gridpoint_files_.values() and dp in tmp_files:
+                if dp not in list(ifs_spectral_files_.values()) + list(ifs_gridpoint_files_.values()) and dp in tmp_files:
                     try:
                         os.remove(dp)
                     except OSError:
@@ -350,7 +355,7 @@ def get_sp_tasks(tasks):
     tasks_by_freq = cmor_utils.group(tasks, lambda task: (task.target.frequency,
                                                           '_'.join(getattr(task.target, "time_operator", ["mean"]))))
     result = []
-    for freq, task_group in tasks_by_freq.iteritems():
+    for freq, task_group in tasks_by_freq.items():
         tasks3d = [t for t in task_group if "alevel" in getattr(t.target, cmor_target.dims_key).split()]
         if not any(tasks3d):
             continue
@@ -389,20 +394,20 @@ def find_sp_variable(task):
         return
     log.info("Looking for surface pressure variable in input files...")
     command = cdoapi.cdo_command()
-    code_string = command.show_code(ifs_spectral_files_.values()[0])
+    code_string = command.show_code(list(ifs_spectral_files_.values())[0])
     codes = [cmor_source.grib_code(int(c)) for c in code_string[0].split()]
     if surface_pressure in codes:
         log.info("Found surface pressure in spectral files")
-        setattr(task, cmor_task.filter_output_key, ifs_spectral_files_.values())
+        setattr(task, cmor_task.filter_output_key, list(ifs_spectral_files_.values()))
         task.source.grid_ = 1
         return
     if ln_surface_pressure in codes:
         log.info("Found lnsp in spectral file")
-        setattr(task, cmor_task.filter_output_key, ifs_spectral_files_.values())
+        setattr(task, cmor_task.filter_output_key, list(ifs_spectral_files_.values()))
         task.source = ifs_ps_source
         return
     log.info("Did not find sp or lnsp in spectral file: assuming gridpoint file contains sp")
-    setattr(task, cmor_task.filter_output_key, ifs_gridpoint_files_.values())
+    setattr(task, cmor_task.filter_output_key, list(ifs_gridpoint_files_.values()))
     task.source.grid_ = 0
 
 
@@ -574,7 +579,7 @@ def get_conversion_constants(conversion, output_frequency):
     if conversion == "vol2flux":
         return 1000.0 / (3600 * output_frequency), 0.0
     if conversion == "vol2fluxup":
-        return - 1000.0 / (3600 * output_frequency), 0.0
+        return old_div(- 1000.0, (3600 * output_frequency)), 0.0
     if conversion == "vol2massl":
         return 1000.0, 0.0
     if conversion == "frac2percent":
@@ -612,7 +617,7 @@ def create_time_axes(task):
         tid, tlow, tup = create_time_axis(freq=task.target.frequency, path=getattr(task, cmor_task.output_path_key),
                                           name=time_dim, has_bounds=(time_operator != ["point"]))
         time_axis_ids[key] = tid
-        time_axis_bnds[tid] = zip(tlow, tup)
+        time_axis_bnds[tid] = list(zip(tlow, tup))
     setattr(task, "t_axis_id", tid)
 
 
@@ -701,7 +706,7 @@ def create_hybrid_level_axis(task):
         aunit = getattr(am, "units")
         bm = ds.variables["hybm"]
         bunit = getattr(bm, "units")
-        hcm = am[:] / pref + bm[:]
+        hcm = old_div(am[:], pref) + bm[:]
         n = hcm.shape[0]
         ai = ds.variables["hyai"]
         abnds = numpy.empty([n, 2])
@@ -711,7 +716,7 @@ def create_hybrid_level_axis(task):
         bbnds = numpy.empty([n, 2])
         bbnds[:, 0] = bi[0:n]
         bbnds[:, 1] = bi[1:n + 1]
-        hcbnds = abnds / pref + bbnds
+        hcbnds = old_div(abnds, pref) + bbnds
         axisid = cmor.axis(table_entry="alternate_hybrid_sigma", coord_vals=hcm, cell_bounds=hcbnds, units="1")
         cmor.zfactor(zaxis_id=axisid, zfactor_name="ap", units=str(aunit), axis_ids=[axisid], zfactor_values=am[:],
                      zfactor_bounds=abnds)
@@ -758,12 +763,12 @@ def create_time_axis(freq, path, name, has_bounds):
         return 0, [], []
     if has_bounds:
         bounds = numpy.empty([len(date_times), 2])
-        rounded_times = map(lambda time: (cmor_utils.get_rounded_time(freq, time)), date_times)
+        rounded_times = [(cmor_utils.get_rounded_time(freq, time)) for time in date_times]
         dt_low = rounded_times
         dt_up = rounded_times[1:] + [cmor_utils.get_rounded_time(freq, date_times[-1], 1)]
         bounds[:, 0], units = cmor_utils.date2num([t - timeshift for t in dt_low], ref_date_)
         bounds[:, 1], units = cmor_utils.date2num([t - timeshift for t in dt_up], ref_date_)
-        times = bounds[:, 0] + (bounds[:, 1] - bounds[:, 0]) / 2
+        times = bounds[:, 0] + old_div((bounds[:, 1] - bounds[:, 0]), 2)
         return cmor.axis(table_entry=str(name), units=units, coord_vals=times, cell_bounds=bounds), dt_low, dt_up
     step = cmor_utils.make_cmor_frequency(freq)
     if date_times[0] >= start_date_ + step:
@@ -848,8 +853,8 @@ def create_gauss_grid(xvals, yvals):
         vert_lons[:, :, 3] = vert_lons[:, :, 0]
         vert_lons[:, :, 1] = numpy.tile(lon_mids[1:nx + 1], (ny, 1))
         vert_lons[:, :, 2] = vert_lons[:, :, 1]
-        i_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(range(1, nx + 1)))
-        j_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(range(1, ny + 1)))
+        i_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(list(range(1, nx + 1))))
+        j_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(list(range(1, ny + 1))))
         lon_arr = numpy.tile(xvals, (ny, 1))
         lat_arr = numpy.tile(yvals[::-1], (nx, 1)).transpose()
         return cmor.grid(axis_ids=[j_index_id, i_index_id], latitude=lat_arr, longitude=lon_arr,

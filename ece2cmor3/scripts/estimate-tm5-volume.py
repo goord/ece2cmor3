@@ -94,9 +94,9 @@ def main():
       if not getattr(args,'short',False):
         print(' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency))
 
-      if task.target.table not in task_per_freq.keys():
+      if task.target.table not in list(task_per_freq.keys()):
         task_per_freq[task.target.table] = 0
-      if task.target.table not in per_freq.keys():
+      if task.target.table not in list(per_freq.keys()):
         per_freq[task.target.table] = 0
 
       # TM5 Volume estimate: estimate the number of 2D layers per variable in output due to the number of time steps per year:

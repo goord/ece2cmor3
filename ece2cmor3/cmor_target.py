@@ -1,3 +1,6 @@
+from builtins import range
+from past.builtins import basestring
+from builtins import object
 import os
 import re
 import json
@@ -103,7 +106,7 @@ def create_targets_for_file(filepath, prefix):
             axes_entries[modlev] = {"requested": "all"}
     axes[tabid] = axes_entries
     var_entries = get_lowercase(data, var_key, {})
-    for k, v in var_entries.iteritems():
+    for k, v in var_entries.items():
         target = cmor_target(k, tabid)
         target.frequency = freq
         target.realm = realm
@@ -111,7 +114,7 @@ def create_targets_for_file(filepath, prefix):
             setattr(target, missval_key, float(missval))
         if missvalint:
             setattr(target, int_missval_key, int(missvalint))
-        for k2, v2 in v.iteritems():
+        for k2, v2 in v.items():
             key = k2.lower()
             setattr(target, key, v2)
             if key == dims_key.lower():
@@ -168,7 +171,7 @@ def get_lowercase(dictionary, key, default):
     if not isinstance(key, basestring):
         return dictionary.get(key, default)
     lowerkey = key.lower()
-    for k, v in dictionary.iteritems():
+    for k, v in dictionary.items():
         if isinstance(k, basestring) and k.lower() == lowerkey:
             return v
     return default
@@ -275,6 +278,6 @@ def get_axis_info(table_id):
     global axes, coord_file
     result = axes.get(coord_file, {})
     overrides = axes.get(table_id, {})
-    for k, v in overrides.iteritems():
+    for k, v in overrides.items():
         result[k] = v
     return result

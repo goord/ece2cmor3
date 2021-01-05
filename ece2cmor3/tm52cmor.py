@@ -1,3 +1,7 @@
+from __future__ import division
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import datetime
 import json
 import logging
@@ -110,7 +114,7 @@ def initialize(path, expname, tabledir, prefix, refdate):
         with open(coordfile) as f:
             data = json.loads(f.read())
         axis_entries = data.get("axis_entry", {})
-        axis_entries = {k.lower(): v for k, v in axis_entries.iteritems()}
+        axis_entries = {k.lower(): v for k, v in axis_entries.items()}
         plev19 = numpy.array([numpy.float(value) for value in axis_entries['plev19']['requested']])
         plev19_ = plev19
         plev39 = numpy.array([numpy.float(value) for value in axis_entries['plev39']['requested']])
@@ -255,7 +259,7 @@ def execute(tasks):
 
     # group the taks according to table
     taskdict = cmor_utils.group(tasks, lambda t: t.target.table)
-    for table, tasklist in taskdict.iteritems():
+    for table, tasklist in taskdict.items():
         try:
             log.info("Loading CMOR table %s to process %d variables..." % (table, len(tasklist)))
             tab_id = cmor.load_table("_".join([table_root_, table]) + ".json")
@@ -341,7 +345,7 @@ def execute(tasks):
                         taskmask[task] = True
                 else:
                     log.info("Skipping variable %s for unknown reason..." % (task.source.variable()))
-        for task, executed in taskmask.iteritems():
+        for task, executed in taskmask.items():
             if not executed:
                 log.error("ERR -14: The source variable %s of target %s in  table %s failed to cmorize" % (
                 task.source.variable(), task.target.variable, task.target.table))
@@ -486,7 +490,7 @@ def execute_netcdf_task(task, tableid):
         else:
             # calculate area-weighted mean
             vals = numpy.mean(vals, axis=1)
-            vals = numpy.sum((vals * areacella_[numpy.newaxis, :, :]), axis=(1, 2)) / numpy.sum(areacella_)
+            vals = old_div(numpy.sum((vals * areacella_[numpy.newaxis, :, :]), axis=(1, 2)), numpy.sum(areacella_))
         ncvar = vals.copy()
     # handle normal case
     else:  # assumption: data is shape [time,lat,lon] (we need to roll longitude dimension so that
@@ -495,7 +499,7 @@ def execute_netcdf_task(task, tableid):
         missval = getattr(task.target, cmor_target.missval_key, 1.e+20)
         vals = numpy.copy(ncvar[:])
         dims = numpy.shape(vals)
-        nroll = dims[-1] / 2
+        nroll = old_div(dims[-1], 2)
         ncvar = numpy.roll(vals, nroll, len(dims) - 1)
         vals = numpy.copy(ncvar[:, :, :])
     # Default values
@@ -590,7 +594,7 @@ def interpolate_plev(pressure_levels, dataset, psdata, varname):
     hyam = dataset.variables["hyam"][:]
     # Vertical interplation routine expects formula a*p0 + b*ps, 
     # TM5 has a + b*ps, change a-> a*p0 by dividing a by the reference in TM5 p0=1e5 (1000 mb / hPa)
-    hyam = hyam[::-1] / 100000
+    hyam = old_div(hyam[::-1], 100000)
     # Vertical coordinate must be from top to bottom: [::-1]
 
     hybm = dataset.variables["hybm"][:]
@@ -601,7 +605,7 @@ def interpolate_plev(pressure_levels, dataset, psdata, varname):
 
     interpolation = 1  # 1 linear, 2 log, 3 loglog
     # divide pressure_levels by 100 to get in mb
-    interpolated_data = Ngl.vinth2p(data, hyam, hybm, pressure_levels / 100, psdata[:, :, :], interpolation, p0mb, 1,
+    interpolated_data = Ngl.vinth2p(data, hyam, hybm, old_div(pressure_levels, 100), psdata[:, :, :], interpolation, p0mb, 1,
                                     False)
     return interpolated_data
 
@@ -668,7 +672,7 @@ def create_time_axis(path, name, has_bounds):
         ds.close()
     tm5refdate = datetime.datetime.strptime(tm5unit, "days since %Y-%m-%d %H:%M:%S")
     # delta days for change of reftime
-    diff_days = (refdate - tm5refdate).total_seconds() / 86400
+    diff_days = old_div((refdate - tm5refdate).total_seconds(), 86400)
     vals = vals - diff_days
     if has_bounds:
         bndvar2 = numpy.zeros_like(bndvar)
@@ -705,7 +709,7 @@ def create_type_axes(task):
     filepath = getattr(task, cmor_task.output_path_key)
     log.info("Creating extra axes for table %s using file %s..." % (table, filepath))
     table_type_axes = type_axes_[key]
-    tgtdims = set(getattr(task.target, cmor_target.dims_key).split()).intersection(extra_axes.keys())
+    tgtdims = set(getattr(task.target, cmor_target.dims_key).split()).intersection(list(extra_axes.keys()))
     for dim in tgtdims:
         if dim == 'lambda550nm':
             ncunits = extra_axes['lambda550nm']['ncunits']
@@ -831,7 +835,7 @@ def create_hybrid_level_axis(task, leveltype='alevel'):
         aunit = getattr(am, "units")
         bm = ds.variables["hybm"]
         bunit = getattr(bm, "units")
-        hcm = am[:] / pref + bm[:]
+        hcm = old_div(am[:], pref) + bm[:]
         n = hcm.shape[0]
         if "hyai" in ds.variables:
             ai = ds.variables["hyai"]
@@ -842,8 +846,8 @@ def create_hybrid_level_axis(task, leveltype='alevel'):
             bbnds = numpy.empty([n, 2])
             bbnds[:, 0] = bi[0:n]
             bbnds[:, 1] = bi[1:n + 1]
-            hcbnds = abnds / pref + bbnds
-            hci = ai[:] / pref + bi[:]
+            hcbnds = old_div(abnds, pref) + bbnds
+            hci = old_div(ai[:], pref) + bi[:]
             n = hci.shape[0]
         else:
             log.critical("Interface values for hybrid levels not present!")
@@ -952,7 +956,7 @@ def get_ps_tasks(tasks):
     global exp_name_, path_
     tasks_by_freq = cmor_utils.group(tasks, lambda task: task.target.frequency)
     result = {}
-    for freq, task_group in tasks_by_freq.iteritems():
+    for freq, task_group in tasks_by_freq.items():
         tasks3d = [t for t in task_group if (
                     "alevel" in getattr(t.target, cmor_target.dims_key).split() or "plev19" in getattr(t.target,
                                                                                                        cmor_target.dims_key).split() or

@@ -1,3 +1,4 @@
+from builtins import object
 import logging
 from ece2cmor3 import cmor_source, cmor_target
 

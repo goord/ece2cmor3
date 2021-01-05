@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 # Converts the input fortran variable namelist file to json
 def write_varlist(targets, opath):
     tgtgroups = cmor_utils.group(targets, lambda t: t.table)
-    tgtdict = {k: [t.variable for t in tgtgroups[k]] for k in tgtgroups.keys()}
+    tgtdict = {k: [t.variable for t in tgtgroups[k]] for k in list(tgtgroups.keys())}
     with open(opath, 'w') as ofile:
         json.dump(tgtdict, ofile, indent=4, separators=(',', ': '))
         ofile.write('\n')  # Add newline at the end of the json file because the python json package doesn't do this.
@@ -34,7 +34,7 @@ def write_varlist_ascii(targets, opath):
                 '{:20} {:60} {:20} {} {}'.format('table', 'variable', 'prio', 'dimensions', 'long_name', 'unit',
                                                  'list of MIPs which request this variable', 'comment_author',
                                                  'comment', '\n'))
-    for k, vlist in tgtgroups.iteritems():
+    for k, vlist in tgtgroups.items():
         ofile.write('{}'.format('\n'))
         for tgtvar in vlist:
             ofile.write('{:10} {:20} {:5} {:40} {:95} '
@@ -88,7 +88,7 @@ def write_varlist_excel(targets, opath, with_pingfile):
         worksheet.write(0, 13, 'ping file comment', bold)
 
     row_counter = 1
-    for k, vlist in tgtgroups.iteritems():
+    for k, vlist in tgtgroups.items():
         worksheet.write(row_counter, 0, '')
         row_counter += 1
         for tgtvar in vlist:
@@ -194,7 +194,7 @@ def main():
      # necessarily include all specific MIP requests. In fact it would be better to create a json data request equivalent
      # based on the ifspar.json.
      result = {}
-     for model, targetlist in matches.items():
+     for model, targetlist in list(matches.items()):
          result[model] = {}
          for target in targetlist:
              table = target.table

@@ -44,7 +44,7 @@ def main():
                         help="File (xlsx|json) containing requested cmor variables (Required, unless --allvars is used)")
     varsarg.add_argument("--allvars", action="store_true", default=False,
                         help="Read all possible variables from CMOR tables (Required, unless --drq is used)")
-    parser.add_argument("--ececonf", metavar='|'.join(components.ece_configs.keys()), type=str,
+    parser.add_argument("--ececonf", metavar='|'.join(list(components.ece_configs.keys())), type=str,
                         help="EC-Earth configuration")
     parser.add_argument("--varlist", "-o", metavar="FILE.json", type=str, default="ece-cmip6-data-request-varlist.json",
                         help="Output file name")
@@ -75,7 +75,7 @@ def main():
             # Here we load extra permanent tasks for LPJ-GUESS because the LPJ_GUESS community likes to output these variables at any time independent wheter they are requested by the data request:
             if args.ececonf in ["EC-EARTH-CC", "EC-EARTH-Veg", "EC-EARTH-Veg-LR"]:
                matches_permanent, omitted_permanent = taskloader.load_drq(os.path.join(os.path.dirname(__file__), "..", "resources", "permanent-tasks.json"), config=args.ececonf, check_prefs=True)
-               for model, targetlist in matches_permanent.items():
+               for model, targetlist in list(matches_permanent.items()):
                    if model in matches:
                       for target in targetlist:
                          if target not in matches[model]:
@@ -90,7 +90,7 @@ def main():
         sys.exit(' Exiting drq2varlist.')
 
     result = {}
-    for model, targetlist in matches.items():
+    for model, targetlist in list(matches.items()):
         result[model] = {}
         for target in targetlist:
             table = target.table

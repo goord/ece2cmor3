@@ -10,6 +10,7 @@
 # available.
 
 from __future__ import print_function
+from builtins import str
 import xml.etree.ElementTree as xmltree
 import json
 from os.path import expanduser

@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 import json
 import logging
 import os
@@ -67,7 +69,7 @@ class netcdf_source(cmor_source):
 
 
 # ECMWF grib code object
-class grib_code:
+class grib_code(object):
     def __init__(self, var_id_, tab_id_=128):
         self.var_id = var_id_
         self.tab_id = tab_id_

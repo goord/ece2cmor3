@@ -1,4 +1,7 @@
 from __future__ import absolute_import
+from builtins import str
+from builtins import range
+from builtins import object
 import logging
 import os
 import re
@@ -122,10 +125,10 @@ def execute(tasks):
     log.info("Executing %d NEMO tasks..." % len(tasks))
     log.info("Cmorizing NEMO tasks...")
     task_groups = cmor_utils.group(tasks, lambda tsk1: getattr(tsk1, cmor_task.output_path_key, None))
-    for filename, task_group in task_groups.iteritems():
+    for filename, task_group in task_groups.items():
         dataset = netCDF4.Dataset(filename, 'r')
         task_sub_groups = cmor_utils.group(task_group, lambda tsk2: tsk2.target.table)
-        for table, task_list in task_sub_groups.iteritems():
+        for table, task_list in task_sub_groups.items():
             log.info("Start cmorization of %s in table %s" % (','.join([t.target.variable for t in task_list]), table))
             try:
                 tab_id = cmor.load_table("_".join([table_root_, table]) + ".json")
@@ -197,8 +200,8 @@ def create_basins(target, dataset):
     data = numpy.copy(dataset.variables["glomsk"][...])
     missval = int(getattr(target, cmor_target.int_missval_key))
     data[data > 0] = missval
-    for var, basin in meanings.iteritems():
-        if var in dataset.variables.keys() and basin in basins:
+    for var, basin in meanings.items():
+        if var in list(dataset.variables.keys()) and basin in basins:
             flagval = flagvals[basins.index(basin)]
             arr = dataset.variables[var][...]
             data[arr > 0] = flagval
@@ -212,7 +215,7 @@ def execute_netcdf_task(dataset, task):
     grid_axes = [] if not hasattr(task, "grid_id") else [getattr(task, "grid_id")]
     z_axes = getattr(task, "z_axes", [])
     t_axes = [] if not hasattr(task, "time_axis") else [getattr(task, "time_axis")]
-    type_axes = [getattr(task, dim + "_axis") for dim in type_axes_.get(task.target.table, {}).keys() if
+    type_axes = [getattr(task, dim + "_axis") for dim in list(type_axes_.get(task.target.table, {}).keys()) if
                  hasattr(task, dim + "_axis")]
     # TODO: Read axes order from netcdf file!
     axes = grid_axes + z_axes + type_axes + t_axes
@@ -234,7 +237,7 @@ def execute_netcdf_task(dataset, task):
     if len(t_axes) > 0 > time_dim:
         for d in dataset.dimensions:
             if d.startswith("time"):
-                time_sel = range(len(d))  # ensure copying of constant fields
+                time_sel = list(range(len(d)))  # ensure copying of constant fields
                 break
     if len(grid_axes) == 0:  # Fix for global averages/sums
         vals = numpy.ma.masked_equal(ncvar[...], missval)
@@ -294,7 +297,7 @@ def create_depth_axes(ds, tasks, table):
         depth_axes_[table] = {}
     log.info("Creating depth axes for table %s using file %s..." % (table, ds.filepath()))
     table_depth_axes = depth_axes_[table]
-    other_nc_axes = ["time_counter", "x", "y"] + [extra_axes[k]["ncdim"] for k in extra_axes.keys()]
+    other_nc_axes = ["time_counter", "x", "y"] + [extra_axes[k]["ncdim"] for k in list(extra_axes.keys())]
     for task in tasks:
         z_axes = []
         if task.source.variable() in ds.variables:
@@ -396,7 +399,7 @@ def read_times(ds, task):
             vals, units, calendar = ncvar[:], getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
         else:
             log.warning("Could not find time_instant variable in %s, looking for generic time..." % ds.filepath())
-            for varname, ncvar in ds.variables.items():
+            for varname, ncvar in list(ds.variables.items()):
                 if getattr(ncvar, "standard_name", "").lower() == "time":
                     log.warning("Found variable %s for instant time variable in file %s" % (varname, ds.filepath()))
                     vals, units, calendar = ncvar[:], getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
@@ -410,7 +413,7 @@ def read_times(ds, task):
                                              getattr(ncvar, "calendar", None)
         else:
             log.warning("Could not find time_centered variable in %s, looking for generic time..." % ds.filepath())
-            for varname, ncvar in ds.variables.items():
+            for varname, ncvar in list(ds.variables.items()):
                 if getattr(ncvar, "standard_name", "").lower() == "time":
                     log.warning("Found variable %s for instant time variable in file %s" % (varname, ds.filepath()))
                     vals, bndvals, units, calendar = ncvar[:], get_time_bounds(ncvar), getattr(ncvar, "units", None), \
@@ -431,7 +434,7 @@ def create_type_axes(ds, tasks, table):
     log.info("Creating extra axes for table %s using file %s..." % (table, ds.filepath()))
     table_type_axes = type_axes_[table]
     for task in tasks:
-        tgtdims = set(getattr(task.target, cmor_target.dims_key).split()).intersection(extra_axes.keys())
+        tgtdims = set(getattr(task.target, cmor_target.dims_key).split()).intersection(list(extra_axes.keys()))
         for dim in tgtdims:
             if dim in table_type_axes:
                 axis_id = table_type_axes[dim]
@@ -509,7 +512,7 @@ def create_masks(tasks):
     global nemo_masks_
     for task in tasks:
         mask = getattr(task.target, cmor_target.mask_key, None)
-        if mask is not None and mask not in nemo_masks_.keys():
+        if mask is not None and mask not in list(nemo_masks_.keys()):
             for nemo_file in nemo_files_:
                 ds = netCDF4.Dataset(nemo_file, 'r')
                 maskvar = ds.variables.get(mask, None)
@@ -534,8 +537,8 @@ def create_grids(tasks):
             return basin_grid_
         return cmor_utils.get_nemo_grid(f)
 
-    file_by_grid = cmor_utils.group(task_by_file.keys(), get_nemo_grid)
-    for grid_name, file_paths in file_by_grid.iteritems():
+    file_by_grid = cmor_utils.group(list(task_by_file.keys()), get_nemo_grid)
+    for grid_name, file_paths in file_by_grid.items():
         output_files = set(file_paths) - {bathy_file_, basin_file_, None}
         if any(output_files):
             filename = list(output_files)[0]
@@ -594,7 +597,7 @@ def write_grid(grid, tasks):
                 task.set_failed()
                 continue
             key = (task.target.table, grid.name, latvars[0])
-            if key not in lat_axes_.keys():
+            if key not in list(lat_axes_.keys()):
                 cmor.load_table(table_root_ + "_" + task.target.table + ".json")
                 lat_axis_id = cmor.axis(table_entry=latvars[0], coord_vals=grid.lats[:, 0], units="degrees_north",
                                         cell_bounds=grid.vertex_lats)
@@ -605,8 +608,8 @@ def write_grid(grid, tasks):
     else:
         if grid.name not in grid_ids_:
             cmor.load_table(table_root_ + "_grids.json")
-            i_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(range(1, nx + 1)))
-            j_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(range(1, ny + 1)))
+            i_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(list(range(1, nx + 1))))
+            j_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(list(range(1, ny + 1))))
             grid_id = cmor.grid(axis_ids=[i_index_id, j_index_id],
                                 latitude=grid.lats,
                                 longitude=grid.lons,

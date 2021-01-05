@@ -1,3 +1,7 @@
+from __future__ import division
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import logging
 import os
 import re
@@ -42,7 +46,7 @@ def get_output_path(task, tmp_path):
 # Checks whether the task grouping makes sense: only tasks for the same variable and frequency can be safely grouped.
 def validate_task_list(tasks):
     global log
-    freqset = set(map(lambda t: cmor_target.get_freq(t.target), tasks))
+    freqset = set([cmor_target.get_freq(t.target) for t in tasks])
     if len(freqset) != 1:
         log.error("Multiple target variables joined to single cdo command: %s" % str(freqset))
         return False
@@ -171,7 +175,7 @@ def add_grid_operators(cdo, task):
     tgtdims = getattr(task.target, cmor_target.dims_key, "").split()
     if "longitude" not in tgtdims:
         operators = [str(o) for o in getattr(task.target, "longitude_operator", [])]
-        if len(operators) == 1 and operators[0] in operator_mapping.keys():
+        if len(operators) == 1 and operators[0] in list(operator_mapping.keys()):
             cdo.add_operator(cdoapi.cdo_command.zonal + operator_mapping[operators[0]])
         else:
             log.error("Longitude reduction operator for task %s in table %s is not supported" % (task.target.variable,
@@ -179,7 +183,7 @@ def add_grid_operators(cdo, task):
             task.set_failed()
     if "latitude" not in tgtdims:
         operators = [str(o) for o in getattr(task.target, "latitude_operator", [])]
-        if len(operators) == 1 and operators[0] in operator_mapping.keys():
+        if len(operators) == 1 and operators[0] in list(operator_mapping.keys()):
             cdo.add_operator(cdoapi.cdo_command.meridional + operator_mapping[operators[0]])
         else:
             log.error("Latitude reduction operator for task %s in table %s is not supported" % (task.target.variable,
@@ -294,7 +298,7 @@ def add_time_operators(cdo, task):
 
 
 def add_high_freq_operator(cdo_command, target_freq, operator, task):
-    timestamps = [i * target_freq for i in range(24 / target_freq)]
+    timestamps = [i * target_freq for i in range(old_div(24, target_freq))]
     aggregators = {"mean": (cmor_source.ifs_source.grib_codes_accum, cdoapi.cdo_command.timselmean_operator),
                    "minimum": (cmor_source.ifs_source.grib_codes_min, cdoapi.cdo_command.timselmin_operator),
                    "maximum": (cmor_source.ifs_source.grib_codes_max, cdoapi.cdo_command.timselmax_operator)}
@@ -312,7 +316,7 @@ def add_high_freq_operator(cdo_command, target_freq, operator, task):
     elif operator in aggregators:
         if not all([c for c in task.source.get_root_codes() if c in aggregators[operator][0]]):
             source_freq = getattr(task, cmor_task.output_frequency_key)
-            steps = target_freq / source_freq
+            steps = old_div(target_freq, source_freq)
             if steps == 0:
                 log.error("Requested %s at %d-hourly frequency cannot be computed for variable %s in table %s "
                           "because its output frequency is only %d" % (operator, target_freq, task.target.variable,
@@ -320,7 +324,7 @@ def add_high_freq_operator(cdo_command, target_freq, operator, task):
                 task.set_failed()
             else:
                 log.warning("Computing inaccurate mean value over %d time steps for variable "
-                            "%s in table %s" % (target_freq / source_freq, task.target.variable, task.target.table))
+                            "%s in table %s" % (old_div(target_freq, source_freq), task.target.variable, task.target.table))
                 if steps == 1:
                     cdo_command.add_operator(cdoapi.cdo_command.select + cdoapi.cdo_command.hour, *timestamps)
                 else:

@@ -12,6 +12,7 @@
 #
 
 from __future__ import print_function
+from builtins import range
 import json
 
 
@@ -33,7 +34,7 @@ code_parent_check_file.write('\n')
 
 #requested_item=
 
-for k, v in datastore["CV"]["experiment_id"].iteritems():
+for k, v in datastore["CV"]["experiment_id"].items():
    #print ' {:30} {:30} {:30}'.format(k, v["activity_id"][0], v["parent_experiment_id"][0])
 
     if k != v["experiment_id"]:
