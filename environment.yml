@@ -31,18 +31,17 @@ dependencies:
 - netcdf4
 - pip
 - requests
-- python=2.7.15
-- setuptools=39.2.0
+- setuptools>=39.0.0
 - numpy>=1.15.1
 - libiconv                                        # Unlisted dependency of cdo
 - pandas>=0.17.1
 - gitpython=2.1.11
 - pip:
-  - f90nml==0.20
-  - jsonschema==2.5.1
-  - testfixtures==5.3.1
-  - xlrd==1.1.0
-  - xlsxwriter==1.0.2
+  - f90nml
+  - jsonschema
+  - testfixtures
+  - xlrd
+  - xlsxwriter
   - dreqPy==01.00.33
   - cython                                        # Unlisted dependency dreq 
   - xarray                                        # Unlisted dependency dreq and/or drq
