@@ -40,7 +40,7 @@ def init_cmor():
     with open(conf_path, 'r') as f:
         metadata = json.load(f)
     metadata["outpath"] = outpath
-    with tempfile.NamedTemporaryFile("r+w", suffix=".json", delete=False) as tmp_file:
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tmp_file:
         json.dump(metadata, tmp_file)
     cmor.dataset_json(tmp_file.name)
     cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
