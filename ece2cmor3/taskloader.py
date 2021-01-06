@@ -162,7 +162,8 @@ def load_drq(varlist, config=None, check_prefs=True):
                         choices = prefs.choose_variable(tgts, model, config)
                         for t in tgts:
                             if t not in choices:
-                                log.info('Dismissing {:7} target {:20} within {:17} configuration due to preference flagging'
+                                log.info('Dismissing {:7} target {:20} within {:17} configuration due to preference '
+                                         'flagging '
                                          .format(model, str(t), "any" if config is None else config))
                                 setattr(t, "load_status", "dismissed")
                     else:

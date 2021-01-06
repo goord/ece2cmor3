@@ -118,8 +118,8 @@ def create_targets_for_file(filepath, prefix):
             key = k2.lower()
             setattr(target, key, v2)
             if key == dims_key.lower():
-                spacedims = list(set([s.encode("ascii") for s in v2.split() if not (s.lower().startswith("time") or
-                                                                                    s.lower().startswith("type"))])
+                spacedims = list(set([s for s in v2.split() if not (s.lower().startswith("time") or
+                                                                    s.lower().startswith("type"))])
                                  - extra_dims)
                 setattr(target, "space_dims", spacedims)
                 target.dims = len(spacedims)
@@ -252,6 +252,7 @@ def get_z_axis(target):
         else:
             axisinfo = get_axis_info(target.table).get(axisname, None)
             if not axisinfo:
+                print(target.__dict__)
                 log.warning("Could not retrieve information for axis %s in table %s" % (axisname, target.table))
                 continue
             zvar = axisinfo.get("standard_name", None)
